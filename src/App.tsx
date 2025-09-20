@@ -4,6 +4,7 @@ import { BarChart, AlertTriangle, Package, ChevronDown, Paperclip, Mic, ArrowRig
 import Header from './components/Header';
 import ScrollIcons from './components/ScrollIcons';
 import PipelineLines from './components/PipelineLines';
+import VoiceAgent from './components/VoiceAgent';
 import authImage from './assets/logo/authImage.jpg';
 import { GroceryForecastingApp, EvaluationScreen, OrdersScreen } from './EnhancedUI';
 import { geminiChatService } from './services/geminiService';
@@ -347,6 +348,7 @@ function DashboardPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [chatMessages, setChatMessages] = useState<Array<{role: 'user' | 'assistant', content: string, timestamp: Date}>>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [isVoiceAgentOpen, setIsVoiceAgentOpen] = useState(false);
 
   const handleSendMessage = async () => {
     if (!searchQuery.trim() || isLoading) return;
@@ -464,7 +466,7 @@ function DashboardPage() {
       </div>
       
       {/* Main Content */}
-      <div className={`transition-all duration-500 ease-in-out ${sidebarOpen ? 'ml-80' : 'ml-32'}`}>
+      <div className={`transition-all duration-500 ease-in-out ${sidebarOpen ? 'ml-80' : 'ml-32'} ${isVoiceAgentOpen ? 'mr-96' : 'mr-0'}`}>
         {activeSection === 'dashboard' && (
           <div className="min-h-screen pt-12 relative">
             
@@ -556,7 +558,10 @@ function DashboardPage() {
                               <span className="text-sm">Attach</span>
                             </button>
                             
-                            <button className="flex items-center space-x-2 bg-white border border-gray-200 rounded-full px-4 py-2 text-gray-700 hover:bg-gray-50 transition-colors font-inter">
+                            <button 
+                              onClick={() => setIsVoiceAgentOpen(true)}
+                              className="flex items-center space-x-2 bg-white border border-gray-200 rounded-full px-4 py-2 text-gray-700 hover:bg-gray-50 transition-colors font-inter"
+                            >
                               <Mic className="w-4 h-4" />
                               <span className="text-sm">Voice</span>
                             </button>
@@ -673,9 +678,12 @@ function DashboardPage() {
                           </div>
                           
                           <div className="flex items-center space-x-2">
-                            <button className="flex items-center space-x-1 bg-white border border-gray-200 rounded-full px-3 py-1 text-gray-700 hover:bg-gray-50 transition-colors font-inter text-xs">
+                            <button 
+                              onClick={() => setIsVoiceAgentOpen(true)}
+                              className="flex items-center space-x-1 bg-white border border-gray-200 rounded-full px-3 py-1 text-gray-700 hover:bg-gray-50 transition-colors font-inter text-xs"
+                            >
                               <Mic className="w-3 h-3" />
-                              <span>Dictation</span>
+                              <span>Voice</span>
                             </button>
                             
                             <button 
@@ -952,6 +960,12 @@ function DashboardPage() {
           </div>
         )}
       </div>
+      
+      {/* Voice Agent Popup */}
+      <VoiceAgent 
+        isOpen={isVoiceAgentOpen} 
+        onClose={() => setIsVoiceAgentOpen(false)} 
+      />
       
     </div>
   );
