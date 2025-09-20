@@ -13,7 +13,14 @@ import {
   Download,
   Upload,
   Filter,
-  Wifi
+  Wifi,
+  ShoppingCart,
+  ExternalLink,
+  Link,
+  Zap,
+  CheckCircle,
+  AlertTriangle,
+  Eye
 } from "lucide-react";
 
 // ---------------------------------------------
@@ -42,6 +49,13 @@ interface OrderRow {
   onHand: number;
   proj: number;
   rec: number;
+  retailer?: {
+    name: string;
+    website: string;
+    apiEndpoint: string;
+    price: number;
+    availability: boolean;
+  };
 }
 
 
@@ -61,10 +75,70 @@ interface ApiConfig {
 // ---------------------------------------------
 
 const SAMPLE_ORDERS: OrderRow[] = [
-  { vendor: "Fresh Fields", productId: "FF-OB-12", product: "Organic Banana", next: "2025-09-23", onHand: 120, proj: 80, rec: 50 },
-  { vendor: "Fresh Fields", productId: "FF-LI-08", product: "Limes", next: "2025-09-23", onHand: 60, proj: 30, rec: 40 },
-  { vendor: "Nature's Best", productId: "NB-ST-33", product: "Strawberries", next: "2025-09-23", onHand: 200, proj: 150, rec: 60 },
-  { vendor: "Nature's Best", productId: "NB-CR-21", product: "Carrot", next: "2025-09-23", onHand: 80, proj: 40, rec: 30 }
+  { 
+    vendor: "Fresh Fields", 
+    productId: "FF-OB-12", 
+    product: "Organic Banana", 
+    next: "2025-09-23", 
+    onHand: 120, 
+    proj: 80, 
+    rec: 50,
+    retailer: {
+      name: "Sysco",
+      website: "https://www.sysco.com",
+      apiEndpoint: "https://api.sysco.com/products",
+      price: 2.85,
+      availability: true
+    }
+  },
+  { 
+    vendor: "Fresh Fields", 
+    productId: "FF-LI-08", 
+    product: "Limes", 
+    next: "2025-09-23", 
+    onHand: 60, 
+    proj: 30, 
+    rec: 40,
+    retailer: {
+      name: "US Foods",
+      website: "https://www.usfoods.com",
+      apiEndpoint: "https://api.usfoods.com/products",
+      price: 1.95,
+      availability: true
+    }
+  },
+  { 
+    vendor: "Nature's Best", 
+    productId: "NB-ST-33", 
+    product: "Strawberries", 
+    next: "2025-09-23", 
+    onHand: 200, 
+    proj: 150, 
+    rec: 60,
+    retailer: {
+      name: "Performance Food Group",
+      website: "https://www.pfgc.com",
+      apiEndpoint: "https://api.pfgc.com/products",
+      price: 4.25,
+      availability: true
+    }
+  },
+  { 
+    vendor: "Nature's Best", 
+    productId: "NB-CR-21", 
+    product: "Carrot", 
+    next: "2025-09-23", 
+    onHand: 80, 
+    proj: 40, 
+    rec: 30,
+    retailer: {
+      name: "Gordon Food Service",
+      website: "https://www.gfs.com",
+      apiEndpoint: "https://api.gfs.com/products",
+      price: 1.45,
+      availability: false
+    }
+  }
 ];
 
 
@@ -550,6 +624,38 @@ const EvaluationScreen: React.FC = () => {
 
 const OrdersScreen: React.FC = () => {
   const [orders] = useState<OrderRow[]>(SAMPLE_ORDERS);
+  const [selectedRetailers, setSelectedRetailers] = useState<Set<string>>(new Set());
+  const [orderStatus, setOrderStatus] = useState<{[key: string]: 'pending' | 'processing' | 'completed' | 'failed'}>({});
+  
+  const handleRetailerOrder = async (productId: string, retailer: OrderRow['retailer']) => {
+    if (!retailer) return;
+    
+    setOrderStatus(prev => ({ ...prev, [productId]: 'processing' }));
+    
+    try {
+      // Simulate API call to retailer
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      
+      // Simulate order placement
+      console.log(`Ordering ${productId} from ${retailer.name}`);
+      setOrderStatus(prev => ({ ...prev, [productId]: 'completed' }));
+      
+      // Add to selected retailers
+      setSelectedRetailers(prev => new Set([...prev, retailer.name]));
+      
+    } catch (error) {
+      setOrderStatus(prev => ({ ...prev, [productId]: 'failed' }));
+      console.error('Order failed:', error);
+    }
+  };
+  
+  const handleBulkOrder = async () => {
+    const availableOrders = orders.filter(order => order.retailer?.availability);
+    
+    for (const order of availableOrders) {
+      await handleRetailerOrder(order.productId, order.retailer);
+    }
+  };
   
   return (
     <div className="space-y-4 p-6">
@@ -560,6 +666,12 @@ const OrdersScreen: React.FC = () => {
         </div>
         <div className="flex items-center gap-2">
           <Button variant="outline"><Download className="h-4 w-4"/> Export</Button>
+          <Button 
+            onClick={handleBulkOrder}
+            disabled={!orders.some(o => o.retailer?.availability)}
+          >
+            <ShoppingCart className="h-4 w-4 mr-2"/> Bulk Order from Retailers
+          </Button>
           <Button><Upload className="h-4 w-4"/> Submit Orders</Button>
         </div>
       </div>
@@ -590,48 +702,139 @@ const OrdersScreen: React.FC = () => {
                 <th className="text-right py-3 px-2 font-medium text-gray-700">On Hand</th>
                 <th className="text-right py-3 px-2 font-medium text-gray-700">Projected</th>
                 <th className="text-right py-3 px-2 font-medium text-gray-700">Recommended</th>
+                <th className="text-left py-3 px-2 font-medium text-gray-700">Retailer</th>
                 <th className="text-center py-3 px-2 font-medium text-gray-700">Actions</th>
               </tr>
             </thead>
             <tbody>
-              {orders.map((order, idx) => (
-                <tr key={idx} className="border-b border-gray-100 hover:bg-gray-50/50 transition-colors">
-                  <td className="py-3 px-2">
-                    <div className="flex items-center gap-2">
-                      <div className="w-2 h-2 bg-emerald-500 rounded-full"></div>
-                      <span className="font-medium text-gray-800">{order.vendor}</span>
-                    </div>
-                  </td>
-                  <td className="py-3 px-2">
-                    <div>
-                      <div className="font-medium text-gray-800">{order.product}</div>
-                      <div className="text-xs text-gray-500">{order.productId}</div>
-                    </div>
-                  </td>
-                  <td className="py-3 px-2 text-right text-gray-600">{order.next}</td>
-                  <td className="py-3 px-2 text-right">
-                    <span className="font-mono text-gray-800">{order.onHand}</span>
-                  </td>
-                  <td className="py-3 px-2 text-right">
-                    <span className="font-mono text-blue-600">{order.proj}</span>
-                  </td>
-                  <td className="py-3 px-2 text-right">
-                    <span className="font-mono text-emerald-600 font-bold">{order.rec}</span>
-                  </td>
-                  <td className="py-3 px-2 text-center">
-                    <div className="flex items-center justify-center gap-1">
-                      <Button variant="ghost" className="p-1 h-6 w-6">
-                        <ArrowRight className="h-3 w-3"/>
-                      </Button>
-                      <Button variant="ghost" className="p-1 h-6 w-6">
-                        <Filter className="h-3 w-3"/>
-                      </Button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
+              {orders.map((order, idx) => {
+                const status = orderStatus[order.productId] || 'pending';
+                return (
+                  <tr key={idx} className="border-b border-gray-100 hover:bg-gray-50/50 transition-colors">
+                    <td className="py-3 px-2">
+                      <div className="flex items-center gap-2">
+                        <div className="w-2 h-2 bg-emerald-500 rounded-full"></div>
+                        <span className="font-medium text-gray-800">{order.vendor}</span>
+                      </div>
+                    </td>
+                    <td className="py-3 px-2">
+                      <div>
+                        <div className="font-medium text-gray-800">{order.product}</div>
+                        <div className="text-xs text-gray-500">{order.productId}</div>
+                      </div>
+                    </td>
+                    <td className="py-3 px-2 text-right text-gray-600">{order.next}</td>
+                    <td className="py-3 px-2 text-right">
+                      <span className="font-mono text-gray-800">{order.onHand}</span>
+                    </td>
+                    <td className="py-3 px-2 text-right">
+                      <span className="font-mono text-blue-600">{order.proj}</span>
+                    </td>
+                    <td className="py-3 px-2 text-right">
+                      <span className="font-mono text-emerald-600 font-bold">{order.rec}</span>
+                    </td>
+                    <td className="py-3 px-2">
+                      {order.retailer ? (
+                        <div className="space-y-1">
+                          <div className="flex items-center gap-2">
+                            <div className={`w-2 h-2 rounded-full ${order.retailer.availability ? 'bg-green-500' : 'bg-red-500'}`}></div>
+                            <span className="font-medium text-gray-800">{order.retailer.name}</span>
+                          </div>
+                          <div className="text-xs text-gray-600">${order.retailer.price.toFixed(2)}/unit</div>
+                          <a 
+                            href={order.retailer.website} 
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                            className="text-xs text-blue-600 hover:text-blue-800 flex items-center gap-1"
+                          >
+                            <ExternalLink className="h-3 w-3"/>
+                            Visit Site
+                          </a>
+                        </div>
+                      ) : (
+                        <span className="text-xs text-gray-500">No retailer</span>
+                      )}
+                    </td>
+                    <td className="py-3 px-2 text-center">
+                      <div className="flex items-center justify-center gap-2">
+                        {order.retailer && order.retailer.availability ? (
+                          <Button 
+                            variant="ghost" 
+                            className="p-2 h-8 flex items-center gap-1 text-xs"
+                            onClick={() => handleRetailerOrder(order.productId, order.retailer)}
+                            disabled={status === 'processing'}
+                            title={status === 'processing' ? 'Processing order...' : 
+                                   status === 'completed' ? 'Order completed successfully' :
+                                   status === 'failed' ? 'Order failed - click to retry' :
+                                   'Order from retailer'}
+                          >
+                            {status === 'processing' ? (
+                              <>
+                                <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-blue-600"></div>
+                                <span className="text-blue-600">Processing</span>
+                              </>
+                            ) : status === 'completed' ? (
+                              <>
+                                <CheckCircle className="h-3 w-3 text-green-600"/>
+                                <span className="text-green-600">Ordered</span>
+                              </>
+                            ) : status === 'failed' ? (
+                              <>
+                                <AlertTriangle className="h-3 w-3 text-red-600"/>
+                                <span className="text-red-600">Failed</span>
+                              </>
+                            ) : (
+                              <>
+                                <ShoppingCart className="h-3 w-3 text-blue-600"/>
+                                <span className="text-blue-600">Order</span>
+                              </>
+                            )}
+                          </Button>
+                        ) : (
+                          <Button variant="ghost" className="p-2 h-8 flex items-center gap-1 text-xs" disabled title="Not available from retailer">
+                            <AlertTriangle className="h-3 w-3 text-gray-400"/>
+                            <span className="text-gray-400">Unavailable</span>
+                          </Button>
+                        )}
+                        <Button 
+                          variant="ghost" 
+                          className="p-2 h-8 flex items-center gap-1 text-xs"
+                          title="View product details"
+                        >
+                          <Eye className="h-3 w-3 text-gray-600"/>
+                          <span className="text-gray-600">Details</span>
+                        </Button>
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
+        </div>
+      </Card>
+      
+      {/* Retailer Integration Status */}
+      <Card className="p-4">
+        <h3 className="text-lg font-semibold text-gray-800 mb-3 flex items-center gap-2">
+          <Link className="h-5 w-5 text-blue-600"/>
+          Retailer Integration Status
+        </h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          {['Sysco', 'US Foods', 'Performance Food Group', 'Gordon Food Service'].map((retailer) => (
+            <div key={retailer} className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+              <div className={`w-3 h-3 rounded-full ${
+                selectedRetailers.has(retailer) ? 'bg-green-500' : 'bg-gray-300'
+              }`}></div>
+              <span className="text-sm font-medium text-gray-700">{retailer}</span>
+              {selectedRetailers.has(retailer) && (
+                <Zap className="h-4 w-4 text-green-600"/>
+              )}
+            </div>
+          ))}
+        </div>
+        <div className="mt-3 text-xs text-gray-600">
+          <strong>Integration Features:</strong> Real-time inventory, automated ordering, price comparison, delivery tracking
         </div>
       </Card>
     </div>

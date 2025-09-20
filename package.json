@@ -13,6 +13,7 @@
     "@google/generative-ai": "^0.24.1",
     "@livekit/components-react": "^2.9.14",
     "@types/mapbox-gl": "^3.4.1",
+    "@types/three": "^0.180.0",
     "firebase": "^12.3.0",
     "livekit-client": "^2.15.7",
     "livekit-server-sdk": "^2.13.3",
@@ -22,7 +23,8 @@
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-feather": "^2.0.10",
-    "react-router-dom": "^7.9.1"
+    "react-router-dom": "^7.9.1",
+    "three": "^0.180.0"
   },
   "devDependencies": {
     "@types/react": "^18.2.15",

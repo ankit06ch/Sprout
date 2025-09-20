@@ -1,0 +1,861 @@
+import React, { useState, useMemo } from 'react';
+import { 
+  TrendingUp, 
+  TrendingDown, 
+  DollarSign, 
+  Package, 
+  Activity,
+  Target,
+  AlertTriangle,
+  CheckCircle,
+  Clock,
+  RefreshCw,
+  Eye,
+  Zap
+} from 'lucide-react';
+import AnalyticsFilters from './AnalyticsFilters';
+import RealTimeMetrics from './RealTimeMetrics';
+
+// Types
+interface MetricCard {
+  title: string;
+  value: string | number;
+  change: number;
+  changeType: 'increase' | 'decrease' | 'neutral';
+  icon: React.ReactNode;
+  color: string;
+  description: string;
+}
+
+interface ChartDataPoint {
+  date: string;
+  value: number;
+  predicted?: number;
+  actual?: number;
+}
+
+interface ProductPerformance {
+  name: string;
+  category: string;
+  sales: number;
+  accuracy: number;
+  trend: 'up' | 'down' | 'stable';
+  margin: number;
+}
+
+interface StorePerformance {
+  name: string;
+  location: string;
+  revenue: number;
+  accuracy: number;
+  efficiency: number;
+  customers: number;
+}
+
+interface ForecastAccuracy {
+  product: string;
+  predicted: number;
+  actual: number;
+  accuracy: number;
+  variance: number;
+}
+
+// Buford Highway Farmers Market data generators
+const generateSalesData = (timeRange: string, store: string, category: string): ChartDataPoint[] => {
+  const data: ChartDataPoint[] = [];
+  const today = new Date();
+  
+  // Determine number of days based on time range
+  let days = 30;
+  switch (timeRange) {
+    case '7d': days = 7; break;
+    case '30d': days = 30; break;
+    case '90d': days = 90; break;
+    case '1y': days = 365; break;
+    default: days = 30;
+  }
+  
+  // Store data from Buford Highway Farmers Market
+  const storeData: { [key: string]: { dailyRevenue: number; accuracy: number; multiplier: number } } = {
+    'All Stores': { dailyRevenue: 106240, accuracy: 91.4, multiplier: 1.0 },
+    'Buford Main': { dailyRevenue: 28340, accuracy: 93.2, multiplier: 1.33 },
+    'Chamblee Plaza': { dailyRevenue: 21680, accuracy: 89.8, multiplier: 1.02 },
+    'Norcross Market': { dailyRevenue: 18920, accuracy: 91.7, multiplier: 0.89 },
+    'Tucker Junction': { dailyRevenue: 14560, accuracy: 90.4, multiplier: 0.69 },
+    'Duluth International': { dailyRevenue: 22740, accuracy: 92.8, multiplier: 1.07 }
+  };
+  
+  // Category multipliers based on cultural shopping patterns
+  const categoryMultipliers: { [key: string]: number } = {
+    'All Categories': 1.0,
+    'Asian Produce': 1.4,
+    'Latin American': 1.2,
+    'Fresh Seafood': 1.6,
+    'International Dairy': 0.8,
+    'Halal/Kosher Meats': 1.3,
+    'Spices & Seasonings': 0.7,
+    'Prepared Foods': 1.1,
+    'Beverages': 0.6,
+    'Pantry Staples': 1.0
+  };
+  
+  const selectedStoreData = storeData[store] || storeData['All Stores'];
+  const categoryMultiplier = categoryMultipliers[category] || 1.0;
+  const baseDailyRevenue = selectedStoreData.dailyRevenue * categoryMultiplier;
+  
+  // Generate realistic daily sales data with cultural patterns
+  for (let i = days - 1; i >= 0; i--) {
+    const date = new Date(today);
+    date.setDate(date.getDate() - i);
+    const dayOfWeek = date.getDay();
+    
+    // Weekend boost for family shopping
+    const weekendMultiplier = (dayOfWeek === 0 || dayOfWeek === 6) ? 1.15 : 1.0;
+    
+    // Base daily revenue with some variation
+    const baseValue = baseDailyRevenue * weekendMultiplier;
+    const variation = 0.15; // 15% daily variation
+    
+    const predicted = baseValue * (1 + (Math.random() - 0.5) * variation);
+    const accuracyVariation = selectedStoreData.accuracy / 100;
+    const actual = predicted * (1 + (Math.random() - 0.5) * (1 - accuracyVariation) * 0.3);
+    
+    data.push({
+      date: date.toISOString().split('T')[0],
+      value: Math.round(predicted), // For compatibility with other charts
+      predicted: Math.round(predicted),
+      actual: Math.round(actual)
+    });
+  }
+  
+  return data;
+};
+
+const generateProductPerformance = (category: string): ProductPerformance[] => {
+  const allProducts: ProductPerformance[] = [
+    // Asian Produce
+    { name: "Napa Cabbage", category: "Asian Produce", sales: 8940, accuracy: 94.7, trend: 'up', margin: 25.3 },
+    { name: "Korean Pears", category: "Asian Produce", sales: 6520, accuracy: 91.2, trend: 'up', margin: 28.7 },
+    { name: "Bok Choy", category: "Asian Produce", sales: 4830, accuracy: 89.8, trend: 'stable', margin: 22.1 },
+    { name: "Thai Basil", category: "Asian Produce", sales: 3670, accuracy: 87.9, trend: 'down', margin: 31.4 },
+    { name: "Daikon Radish", category: "Asian Produce", sales: 5240, accuracy: 92.4, trend: 'up', margin: 19.8 },
+    
+    // Latin American
+    { name: "Plantains", category: "Latin American", sales: 7890, accuracy: 93.1, trend: 'up', margin: 26.5 },
+    { name: "Yuca/Cassava", category: "Latin American", sales: 4650, accuracy: 88.7, trend: 'stable', margin: 24.2 },
+    { name: "Tomatillos", category: "Latin American", sales: 3820, accuracy: 91.3, trend: 'up', margin: 27.8 },
+    { name: "Chiles Poblanos", category: "Latin American", sales: 2940, accuracy: 85.6, trend: 'down', margin: 29.1 },
+    { name: "Mexican Crema", category: "Latin American", sales: 5180, accuracy: 90.2, trend: 'up', margin: 23.6 },
+    
+    // Fresh Seafood
+    { name: "Live Tilapia", category: "Fresh Seafood", sales: 12300, accuracy: 89.4, trend: 'up', margin: 18.7 },
+    { name: "Frozen Mackerel", category: "Fresh Seafood", sales: 8760, accuracy: 91.8, trend: 'stable', margin: 21.3 },
+    { name: "Sea Bass Fillets", category: "Fresh Seafood", sales: 15420, accuracy: 87.2, trend: 'up', margin: 24.9 },
+    { name: "Jumbo Shrimp", category: "Fresh Seafood", sales: 11890, accuracy: 88.9, trend: 'up', margin: 22.5 },
+    { name: "Whole Red Snapper", category: "Fresh Seafood", sales: 9640, accuracy: 86.5, trend: 'stable', margin: 19.8 },
+    
+    // Halal Meats
+    { name: "Ground Lamb", category: "Halal/Kosher Meats", sales: 9870, accuracy: 92.6, trend: 'up', margin: 28.3 },
+    { name: "Chicken Thighs (Halal)", category: "Halal/Kosher Meats", sales: 13240, accuracy: 94.1, trend: 'up', margin: 26.7 },
+    { name: "Beef Short Ribs", category: "Halal/Kosher Meats", sales: 11560, accuracy: 88.7, trend: 'stable', margin: 29.4 },
+    { name: "Goat Meat", category: "Halal/Kosher Meats", sales: 6780, accuracy: 85.9, trend: 'down', margin: 31.2 },
+    { name: "Turkey Breast", category: "Halal/Kosher Meats", sales: 8920, accuracy: 91.4, trend: 'up', margin: 25.8 },
+    
+    // International Dairy
+    { name: "Korean Cheese", category: "International Dairy", sales: 3420, accuracy: 89.1, trend: 'up', margin: 32.4 },
+    { name: "Greek Yogurt", category: "International Dairy", sales: 5680, accuracy: 92.3, trend: 'stable', margin: 28.7 },
+    { name: "Mexican Queso Fresco", category: "International Dairy", sales: 4950, accuracy: 87.8, trend: 'up', margin: 26.9 },
+    
+    // Spices & Seasonings
+    { name: "Gochujang Paste", category: "Spices & Seasonings", sales: 2180, accuracy: 91.5, trend: 'up', margin: 35.2 },
+    { name: "Saffron", category: "Spices & Seasonings", sales: 3420, accuracy: 88.3, trend: 'down', margin: 42.1 },
+    { name: "Dried Chiles", category: "Spices & Seasonings", sales: 1890, accuracy: 86.7, trend: 'stable', margin: 38.6 },
+    
+    // Prepared Foods
+    { name: "Kimchi (House-made)", category: "Prepared Foods", sales: 6780, accuracy: 83.3, trend: 'up', margin: 45.2 },
+    { name: "Tamales", category: "Prepared Foods", sales: 4320, accuracy: 89.7, trend: 'up', margin: 41.8 },
+    { name: "Vietnamese Pho Kit", category: "Prepared Foods", sales: 5940, accuracy: 87.4, trend: 'stable', margin: 39.5 },
+    
+    // Beverages
+    { name: "Korean Rice Wine", category: "Beverages", sales: 2340, accuracy: 92.1, trend: 'up', margin: 28.9 },
+    { name: "Jamaican Ginger Beer", category: "Beverages", sales: 1890, accuracy: 85.6, trend: 'stable', margin: 31.7 },
+    
+    // Pantry Staples
+    { name: "Jasmine Rice (50lb)", category: "Pantry Staples", sales: 8940, accuracy: 92.3, trend: 'up', margin: 15.2 },
+    { name: "Soy Sauce (Kikkoman)", category: "Pantry Staples", sales: 5680, accuracy: 95.0, trend: 'stable', margin: 18.4 },
+    { name: "Corn Tortillas", category: "Pantry Staples", sales: 4320, accuracy: 93.1, trend: 'up', margin: 12.7 }
+  ];
+  
+  if (category === 'All Categories') {
+    return allProducts;
+  }
+  
+  return allProducts.filter(product => product.category === category);
+};
+
+const generateStorePerformance = (store: string): StorePerformance[] => {
+  const allStores: StorePerformance[] = [
+    { name: "Buford Main", location: "Doraville, GA", revenue: 28340, accuracy: 93.2, efficiency: 87.5, customers: 1847 },
+    { name: "Chamblee Plaza", location: "Chamblee, GA", revenue: 21680, accuracy: 89.8, efficiency: 82.3, customers: 1234 },
+    { name: "Norcross Market", location: "Norcross, GA", revenue: 18920, accuracy: 91.7, efficiency: 79.8, customers: 1067 },
+    { name: "Tucker Junction", location: "Tucker, GA", revenue: 14560, accuracy: 90.4, efficiency: 76.9, customers: 892 },
+    { name: "Duluth International", location: "Duluth, GA", revenue: 22740, accuracy: 92.8, efficiency: 85.2, customers: 1456 }
+  ];
+  
+  if (store === 'All Stores') {
+    return allStores;
+  }
+  
+  return allStores.filter(s => s.name === store);
+};
+
+const generateForecastAccuracy = (): ForecastAccuracy[] => [
+  { product: "Jasmine Rice (50lb)", predicted: 180, actual: 195, accuracy: 92.3, variance: 8.3 },
+  { product: "Soy Sauce (Kikkoman)", predicted: 240, actual: 228, accuracy: 95.0, variance: -5.0 },
+  { product: "Corn Tortillas", predicted: 320, actual: 298, accuracy: 93.1, variance: -6.9 },
+  { product: "Kimchi (House-made)", predicted: 85, actual: 102, accuracy: 83.3, variance: 20.0 },
+  { product: "Coconut Milk", predicted: 150, actual: 163, accuracy: 92.0, variance: 8.7 },
+  { product: "Moon Cakes", predicted: 45, actual: 67, accuracy: 67.2, variance: 48.9 },
+  { product: "Masa Harina", predicted: 90, actual: 78, accuracy: 86.7, variance: -13.3 },
+  { product: "Dried Persimmons", predicted: 25, actual: 31, accuracy: 80.6, variance: 24.0 }
+];
+
+// Enhanced Line Chart component
+const LineChart: React.FC<{ data: ChartDataPoint[]; height?: number }> = ({ data, height = 400 }) => {
+  if (!data || data.length === 0) {
+    return <div className="flex items-center justify-center h-64 text-gray-500">No data available</div>;
+  }
+
+  const maxValue = Math.max(...data.map(d => Math.max(d.predicted || 0, d.actual || 0)));
+  const minValue = Math.min(...data.map(d => Math.min(d.predicted || 0, d.actual || 0)));
+  const range = maxValue - minValue;
+  
+  // Add some padding to the range for better visualization
+  const paddedMin = minValue - range * 0.1;
+  const paddedMax = maxValue + range * 0.1;
+  const paddedRange = paddedMax - paddedMin;
+  
+  const getY = (value: number) => height - ((value - paddedMin) / paddedRange) * height;
+  const getX = (index: number) => (index / (data.length - 1)) * 100;
+  
+  // Create the points string for the lines
+  const predictedPoints = data.map((d, i) => `${getX(i)},${getY(d.predicted || 0)}`).join(' ');
+  const actualPoints = data.map((d, i) => `${getX(i)},${getY(d.actual || 0)}`).join(' ');
+  
+  return (
+    <div className="relative w-full" style={{ height: height + 60 }}>
+      <svg width="100%" height={height} className="overflow-visible">
+        {/* Background gradient */}
+        <defs>
+          <linearGradient id="predictedGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" stopColor="#3b82f6" stopOpacity="0.2"/>
+            <stop offset="100%" stopColor="#3b82f6" stopOpacity="0"/>
+          </linearGradient>
+          <linearGradient id="actualGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" stopColor="#10b981" stopOpacity="0.2"/>
+            <stop offset="100%" stopColor="#10b981" stopOpacity="0"/>
+          </linearGradient>
+        </defs>
+        
+        {/* Grid lines */}
+        {[0, 0.25, 0.5, 0.75, 1].map((ratio, i) => (
+          <line
+            key={i}
+            x1="0"
+            y1={height * ratio}
+            x2="100%"
+            y2={height * ratio}
+            stroke="#e5e7eb"
+            strokeWidth="1"
+            strokeDasharray="2,2"
+          />
+        ))}
+        
+        {/* Area under predicted line */}
+        <polygon
+          fill="url(#predictedGradient)"
+          points={`0,${height} ${predictedPoints} 100,${height}`}
+        />
+        
+        {/* Area under actual line */}
+        <polygon
+          fill="url(#actualGradient)"
+          points={`0,${height} ${actualPoints} 100,${height}`}
+        />
+        
+        {/* Predicted line - thicker and more prominent */}
+        <polyline
+          fill="none"
+          stroke="#3b82f6"
+          strokeWidth="4"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          points={predictedPoints}
+        />
+        
+        {/* Actual line - thicker and more prominent */}
+        <polyline
+          fill="none"
+          stroke="#10b981"
+          strokeWidth="4"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          points={actualPoints}
+        />
+        
+        {/* Data points with hover effects */}
+        {data.map((d, i) => (
+          <g key={i}>
+            {/* Predicted point */}
+            <circle
+              cx={`${getX(i)}%`}
+              cy={getY(d.predicted || 0)}
+              r="6"
+              fill="#3b82f6"
+              stroke="white"
+              strokeWidth="2"
+              className="hover:r-8 transition-all duration-200 cursor-pointer"
+            />
+            {/* Actual point */}
+            <circle
+              cx={`${getX(i)}%`}
+              cy={getY(d.actual || 0)}
+              r="6"
+              fill="#10b981"
+              stroke="white"
+              strokeWidth="2"
+              className="hover:r-8 transition-all duration-200 cursor-pointer"
+            />
+          </g>
+        ))}
+      </svg>
+      
+      {/* Enhanced Legend */}
+      <div className="flex items-center justify-center gap-6 mt-4 text-sm">
+        <div className="flex items-center gap-2">
+          <div className="w-4 h-1 bg-blue-500 rounded-full"></div>
+          <span className="text-gray-700 font-medium">Predicted Sales</span>
+        </div>
+        <div className="flex items-center gap-2">
+          <div className="w-4 h-1 bg-green-500 rounded-full"></div>
+          <span className="text-gray-700 font-medium">Actual Sales</span>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+/*
+const BarChart: React.FC<{ data: { name: string; value: number; color?: string }[]; height?: number }> = ({ 
+  data, 
+  height = 200 
+}) => {
+  const maxValue = Math.max(...data.map(d => d.value));
+  
+  return (
+    <div className="relative" style={{ height }}>
+      <div className="flex items-end justify-between h-full gap-2">
+        {data.map((item, i) => (
+          <div key={i} className="flex-1 flex flex-col items-center">
+            <div
+              className={`w-full rounded-t transition-all duration-500 hover:opacity-80 ${
+                item.color || 'bg-gradient-to-t from-blue-400 to-blue-500'
+              }`}
+              style={{ height: `${(item.value / maxValue) * (height - 40)}px` }}
+            />
+            <div className="text-xs text-gray-600 mt-2 text-center">
+              {item.name}
+            </div>
+            <div className="text-xs font-semibold text-gray-800 mt-1">
+              {item.value.toLocaleString()}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+*/
+
+/*
+const CustomPieChart: React.FC<{ data: { name: string; value: number; color: string }[]; size?: number }> = ({ 
+  data, 
+  size = 200 
+}) => {
+  const total = data.reduce((sum, item) => sum + item.value, 0);
+  let currentAngle = 0;
+  
+  return (
+    <div className="relative" style={{ width: size, height: size }}>
+      <svg width={size} height={size} className="transform -rotate-90">
+        <circle
+          cx={size / 2}
+          cy={size / 2}
+          r={size / 2 - 20}
+          fill="none"
+          stroke="#e5e7eb"
+          strokeWidth="20"
+        />
+        
+        {data.map((item, i) => {
+          const percentage = (item.value / total) * 100;
+          const angle = (percentage / 100) * 360;
+          const startAngle = currentAngle;
+          const endAngle = currentAngle + angle;
+          currentAngle += angle;
+          
+          const startAngleRad = (startAngle * Math.PI) / 180;
+          const endAngleRad = (endAngle * Math.PI) / 180;
+          
+          const radius = size / 2 - 20;
+          const x1 = size / 2 + radius * Math.cos(startAngleRad);
+          const y1 = size / 2 + radius * Math.sin(startAngleRad);
+          const x2 = size / 2 + radius * Math.cos(endAngleRad);
+          const y2 = size / 2 + radius * Math.sin(endAngleRad);
+          
+          const largeArcFlag = angle > 180 ? 1 : 0;
+          
+          const pathData = [
+            `M ${size / 2} ${size / 2}`,
+            `L ${x1} ${y1}`,
+            `A ${radius} ${radius} 0 ${largeArcFlag} 1 ${x2} ${y2}`,
+            'Z'
+          ].join(' ');
+          
+          return (
+            <path
+              key={i}
+              d={pathData}
+              fill={item.color}
+              className="transition-all duration-300 hover:opacity-80"
+            />
+          );
+        })}
+      </svg>
+      
+      {/* Legend */}
+      <div className="absolute bottom-0 left-0 right-0 mt-4">
+        <div className="flex flex-wrap gap-2 justify-center">
+          {data.map((item, i) => (
+            <div key={i} className="flex items-center gap-1 text-xs">
+              <div 
+                className="w-2 h-2 rounded-full" 
+                style={{ backgroundColor: item.color }}
+              />
+              <span className="text-gray-600">{item.name}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+};
+*/
+
+/*
+const AccuracyTrendChart: React.FC<{ data: ChartDataPoint[]; height?: number }> = ({ data, height = 200 }) => {
+  // Calculate accuracy percentage for each data point
+  const accuracyData = data.map(d => ({
+    x: d.date,
+    accuracy: Math.round((1 - Math.abs((d.predicted || 0) - (d.actual || 0)) / Math.max(d.predicted || 0, d.actual || 0, 1)) * 100)
+  }));
+  
+  const maxValue = Math.max(...accuracyData.map(d => d.accuracy));
+  const minValue = Math.min(...accuracyData.map(d => d.accuracy));
+  const range = maxValue - minValue || 1;
+  
+  const getY = (value: number) => height - ((value - minValue) / range) * height;
+  
+  return (
+    <div className="relative" style={{ height }}>
+      <svg width="100%" height={height} className="overflow-visible">
+        {/* Grid lines */}
+        {[0, 0.25, 0.5, 0.75, 1].map((ratio, i) => (
+          <line
+            key={i}
+            x1="0"
+            y1={height * ratio}
+            x2="100%"
+            y2={height * ratio}
+            stroke="#e5e7eb"
+            strokeWidth="1"
+            strokeDasharray="2,2"
+          />
+        ))}
+        
+        {/* Accuracy line */}
+        <polyline
+          fill="none"
+          stroke="#8b5cf6"
+          strokeWidth="3"
+          points={accuracyData.map((d, i) => `${(i / (accuracyData.length - 1)) * 100}%,${getY(d.accuracy)}`).join(' ')}
+        />
+        
+        {/* Data points */}
+        {accuracyData.map((d, i) => (
+          <g key={i}>
+            <circle
+              cx={`${(i / (accuracyData.length - 1)) * 100}%`}
+              cy={getY(d.accuracy)}
+              r="4"
+              fill="#8b5cf6"
+              className="hover:r-6 transition-all duration-200"
+            />
+            {/* Accuracy percentage label */}
+            <text
+              x={`${(i / (accuracyData.length - 1)) * 100}%`}
+              y={getY(d.accuracy) - 10}
+              textAnchor="middle"
+              className="text-xs font-medium fill-purple-600"
+            >
+              {d.accuracy}%
+            </text>
+          </g>
+        ))}
+      </svg>
+      
+      {/* Y-axis labels */}
+      <div className="absolute left-0 top-0 h-full flex flex-col justify-between text-xs text-gray-500">
+        <span>{maxValue}%</span>
+        <span>{Math.round((maxValue + minValue) / 2)}%</span>
+        <span>{minValue}%</span>
+      </div>
+    </div>
+  );
+};
+*/
+
+// Main component
+const EnhancedAnalytics: React.FC = () => {
+  const [timeRange, setTimeRange] = useState('30d');
+  const [selectedStore, setSelectedStore] = useState('All Stores');
+  const [selectedCategory, setSelectedCategory] = useState('All Categories');
+  const [refreshKey, setRefreshKey] = useState(0);
+  
+  const handleFiltersChange = (filters: any) => {
+    setTimeRange(filters.timeRange);
+    setSelectedStore(filters.store);
+    setSelectedCategory(filters.category);
+    setRefreshKey(prev => prev + 1);
+  };
+  
+  const handleExport = (format: string) => {
+    console.log(`Exporting data in ${format} format`);
+    // Here you would implement actual export functionality
+    alert(`Exporting analytics data as ${format.toUpperCase()}`);
+  };
+  
+  // Generate data based on current filters
+  const salesData = useMemo(() => generateSalesData(timeRange, selectedStore, selectedCategory), [refreshKey, timeRange, selectedStore, selectedCategory]);
+  const productPerformance = useMemo(() => generateProductPerformance(selectedCategory), [refreshKey, selectedCategory]);
+  const storePerformance = useMemo(() => generateStorePerformance(selectedStore), [refreshKey, selectedStore]);
+  const forecastAccuracy = useMemo(() => generateForecastAccuracy(), [refreshKey]);
+  
+  // Calculate dynamic metrics based on filtered data
+  const totalRevenue = salesData.reduce((sum, d) => sum + (d.actual || 0), 0);
+  const totalPredicted = salesData.reduce((sum, d) => sum + (d.predicted || 0), 0);
+  const accuracy = totalPredicted > 0 ? Math.round((1 - Math.abs(totalPredicted - totalRevenue) / totalPredicted) * 100 * 10) / 10 : 94.2;
+  
+  const metrics: MetricCard[] = [
+    {
+      title: "Total Revenue",
+      value: `$${Math.round(totalRevenue).toLocaleString()}`,
+      change: 12.5,
+      changeType: 'increase',
+      icon: <DollarSign className="w-5 h-5" />,
+      color: "text-green-600",
+      description: `${selectedStore} - ${selectedCategory}`
+    },
+    {
+      title: "Forecast Accuracy",
+      value: `${accuracy}%`,
+      change: 2.3,
+      changeType: 'increase',
+      icon: <Target className="w-5 h-5" />,
+      color: "text-blue-600",
+      description: "overall accuracy"
+    },
+    {
+      title: "Products Tracked",
+      value: productPerformance.length.toString(),
+      change: 8.1,
+      changeType: 'increase',
+      icon: <Package className="w-5 h-5" />,
+      color: "text-purple-600",
+      description: "active SKUs"
+    },
+    {
+      title: "Waste Reduction",
+      value: "23.7%",
+      change: 5.2,
+      changeType: 'increase',
+      icon: <Activity className="w-5 h-5" />,
+      color: "text-emerald-600",
+      description: "vs baseline"
+    },
+    {
+      title: "Customer Satisfaction",
+      value: "4.8/5",
+      change: 0.3,
+      changeType: 'increase',
+      icon: <Users className="w-5 h-5" />,
+      color: "text-orange-600",
+      description: "average rating"
+    },
+    {
+      title: "Inventory Turnover",
+      value: "12.4x",
+      change: 1.8,
+      changeType: 'increase',
+      icon: <RefreshCw className="w-5 h-5" />,
+      color: "text-indigo-600",
+      description: "annual rate"
+    }
+  ];
+  
+  // Dynamic category distribution based on product performance
+  // const categoryDistribution = useMemo(() => {
+    const categories = productPerformance.reduce((acc, product) => {
+      acc[product.category] = (acc[product.category] || 0) + product.sales;
+      return acc;
+    }, {} as { [key: string]: number });
+    
+    const colors = ["#10b981", "#3b82f6", "#ef4444", "#f59e0b", "#8b5cf6", "#6b7280"];
+    let colorIndex = 0;
+    
+    return Object.entries(categories).map(([name, value]) => ({
+      name,
+      value: Math.round(value / 1000), // Convert to thousands for display
+      color: colors[colorIndex++ % colors.length]
+    }));
+  // }, [productPerformance]);
+  
+  // const storeAccuracyData = storePerformance.map(store => ({
+  //   name: store.name,
+  //   value: store.accuracy,
+  //   color: store.accuracy > 92 ? '#10b981' : store.accuracy > 88 ? '#f59e0b' : '#ef4444'
+  // }));
+  
+  return (
+    <div className="space-y-6 p-6 bg-gradient-to-br from-gray-50 to-white min-h-screen">
+      {/* Filters */}
+      <AnalyticsFilters onFiltersChange={handleFiltersChange} onExport={handleExport} />
+      
+      {/* Header */}
+      <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900">Buford Highway Farmers Market - Analytics Dashboard</h1>
+          <p className="text-gray-600 mt-1">Comprehensive insights into multi-cultural grocery forecasting performance across 5 locations</p>
+          {(selectedStore !== 'All Stores' || selectedCategory !== 'All Categories' || timeRange !== '30d') && (
+            <div className="mt-2 flex items-center gap-2">
+              <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
+              <span className="text-sm text-blue-600 font-medium">
+                Filters Active: {selectedStore} • {selectedCategory} • {timeRange}
+              </span>
+            </div>
+          )}
+        </div>
+        
+        <div className="flex items-center gap-3">
+          <button
+            onClick={() => setRefreshKey(prev => prev + 1)}
+            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2"
+          >
+            <RefreshCw className="w-4 h-4" />
+            Refresh Data
+          </button>
+        </div>
+      </div>
+      
+      {/* Real-Time Metrics */}
+      <RealTimeMetrics />
+      
+      {/* Key Metrics */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
+        {metrics.map((metric, index) => (
+          <div key={index} className="bg-white rounded-xl p-6 shadow-lg border border-gray-100 hover:shadow-xl transition-shadow">
+            <div className="flex items-center justify-between mb-4">
+              <div className={`p-2 rounded-lg ${metric.color.replace('text-', 'bg-').replace('-600', '-100')}`}>
+                {metric.icon}
+              </div>
+              <div className={`flex items-center gap-1 text-sm font-medium ${
+                metric.changeType === 'increase' ? 'text-green-600' : 
+                metric.changeType === 'decrease' ? 'text-red-600' : 'text-gray-600'
+              }`}>
+                {metric.changeType === 'increase' ? <TrendingUp className="w-4 h-4" /> : 
+                 metric.changeType === 'decrease' ? <TrendingDown className="w-4 h-4" /> : null}
+                {metric.change > 0 ? '+' : ''}{metric.change}%
+              </div>
+            </div>
+            <div className="space-y-1">
+              <div className={`text-2xl font-bold ${metric.color}`}>{metric.value}</div>
+              <div className="text-sm text-gray-600">{metric.title}</div>
+              <div className="text-xs text-gray-500">{metric.description}</div>
+            </div>
+          </div>
+        ))}
+      </div>
+      
+      {/* Main Sales Forecast vs Actual Chart - Full Width */}
+      <div className="bg-white rounded-xl p-8 shadow-lg border border-gray-100">
+        <div className="flex items-center justify-between mb-6">
+          <div>
+            <h3 className="text-3xl font-bold text-gray-900">Sales Forecast vs Actual Performance</h3>
+            <p className="text-gray-600 mt-1">Daily sales performance comparison across all Buford Highway locations</p>
+          </div>
+          <div className="flex items-center gap-2 text-sm text-gray-600">
+            <Eye className="w-4 h-4" />
+            {timeRange} view
+          </div>
+        </div>
+        <div className="mb-8">
+          <LineChart data={salesData} height={400} />
+          {/* Debug info */}
+          <div className="text-xs text-gray-500 mt-2">
+            Data points: {salesData.length}, Sample: {JSON.stringify(salesData.slice(0, 2))}
+          </div>
+        </div>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+          <div className="text-center p-4 bg-blue-50 rounded-lg">
+            <div className="text-3xl font-bold text-blue-600">
+              {Math.round(salesData.reduce((sum, d) => sum + (d.predicted || 0), 0) / salesData.length).toLocaleString()}
+            </div>
+            <div className="text-sm text-gray-600 font-medium">Avg Predicted</div>
+          </div>
+          <div className="text-center p-4 bg-green-50 rounded-lg">
+            <div className="text-3xl font-bold text-green-600">
+              {Math.round(salesData.reduce((sum, d) => sum + (d.actual || 0), 0) / salesData.length).toLocaleString()}
+            </div>
+            <div className="text-sm text-gray-600 font-medium">Avg Actual</div>
+          </div>
+          <div className="text-center p-4 bg-purple-50 rounded-lg">
+            <div className="text-3xl font-bold text-purple-600">
+              {Math.round((salesData.reduce((sum, d) => sum + (d.actual || 0), 0) / salesData.reduce((sum, d) => sum + (d.predicted || 0), 0)) * 100)}%
+            </div>
+            <div className="text-sm text-gray-600 font-medium">Overall Accuracy</div>
+          </div>
+          <div className="text-center p-4 bg-orange-50 rounded-lg">
+            <div className="text-3xl font-bold text-orange-600">
+              {Math.round(salesData.reduce((sum, d) => sum + Math.abs((d.predicted || 0) - (d.actual || 0)), 0) / salesData.length).toLocaleString()}
+            </div>
+            <div className="text-sm text-gray-600 font-medium">Avg Variance</div>
+          </div>
+        </div>
+      </div>
+      
+      {/* Detailed Tables */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Top Performing Products */}
+        <div className="bg-white rounded-xl p-6 shadow-lg border border-gray-100">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-lg font-semibold text-gray-900">Top Performing Products</h3>
+            <div className="flex items-center gap-2 text-sm text-gray-600">
+              <Zap className="w-4 h-4" />
+              High accuracy
+            </div>
+          </div>
+          <div className="space-y-3">
+            {productPerformance.slice(0, 5).map((product, index) => (
+              <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                <div className="flex-1">
+                  <div className="font-medium text-gray-900">{product.name}</div>
+                  <div className="text-sm text-gray-600">{product.category}</div>
+                </div>
+                <div className="text-right">
+                  <div className="font-semibold text-gray-900">${product.sales.toLocaleString()}</div>
+                  <div className={`text-sm flex items-center gap-1 ${
+                    product.accuracy > 92 ? 'text-green-600' : 
+                    product.accuracy > 88 ? 'text-yellow-600' : 'text-red-600'
+                  }`}>
+                    <CheckCircle className="w-3 h-3" />
+                    {product.accuracy}% accuracy
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+        
+        {/* Forecast Accuracy Details */}
+        <div className="bg-white rounded-xl p-6 shadow-lg border border-gray-100">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-lg font-semibold text-gray-900">Forecast Accuracy</h3>
+            <div className="flex items-center gap-2 text-sm text-gray-600">
+              <Target className="w-4 h-4" />
+              Recent predictions
+            </div>
+          </div>
+          <div className="space-y-3">
+            {forecastAccuracy.map((item, index) => (
+              <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                <div className="flex-1">
+                  <div className="font-medium text-gray-900">{item.product}</div>
+                  <div className="text-sm text-gray-600">
+                    Predicted: {item.predicted} | Actual: {item.actual}
+                  </div>
+                </div>
+                <div className="text-right">
+                  <div className={`font-semibold ${
+                    item.accuracy > 95 ? 'text-green-600' : 
+                    item.accuracy > 90 ? 'text-yellow-600' : 'text-red-600'
+                  }`}>
+                    {item.accuracy}%
+                  </div>
+                  <div className={`text-sm ${
+                    item.variance > 0 ? 'text-red-600' : 'text-green-600'
+                  }`}>
+                    {item.variance > 0 ? '+' : ''}{item.variance}% variance
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+      
+      {/* Alerts and Recommendations */}
+      <div className="bg-white rounded-xl p-6 shadow-lg border border-gray-100">
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-lg font-semibold text-gray-900">Insights & Recommendations</h3>
+          <div className="flex items-center gap-2 text-sm text-gray-600">
+            <AlertTriangle className="w-4 h-4" />
+            AI-powered insights
+          </div>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
+            <div className="flex items-center gap-2 mb-2">
+              <CheckCircle className="w-5 h-5 text-green-600" />
+              <span className="font-medium text-green-800">High Accuracy</span>
+            </div>
+            <p className="text-sm text-green-700">
+              Your produce department shows 94.2% forecast accuracy, above industry average of 87%.
+            </p>
+          </div>
+          
+          <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+            <div className="flex items-center gap-2 mb-2">
+              <Clock className="w-5 h-5 text-yellow-600" />
+              <span className="font-medium text-yellow-800">Optimization Opportunity</span>
+            </div>
+            <p className="text-sm text-yellow-700">
+              Consider increasing stock levels for organic spinach by 15% to reduce stockouts.
+            </p>
+          </div>
+          
+          <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
+            <div className="flex items-center gap-2 mb-2">
+              <TrendingUp className="w-5 h-5 text-blue-600" />
+              <span className="font-medium text-blue-800">Growth Trend</span>
+            </div>
+            <p className="text-sm text-blue-700">
+              Grass-fed beef sales are up 12% this month. Consider expanding inventory.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default EnhancedAnalytics;

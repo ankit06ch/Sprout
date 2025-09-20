@@ -6,7 +6,13 @@ import {
   signOut, 
   onAuthStateChanged 
 } from 'firebase/auth';
-import { auth } from '../firebase/config';
+import { auth, controlFirestoreNetwork, getDb } from '../firebase/config';
+
+// Debug logging function for AuthContext
+const authDebugLog = (message: string, data?: any) => {
+  const timestamp = new Date().toISOString();
+  console.log(`[AUTH DEBUG ${timestamp}] ${message}`, data || '');
+};
 
 // Helper function to get user-friendly error messages
 const getAuthErrorMessage = (errorCode: string): string => {
@@ -85,12 +91,56 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   };
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
+    authDebugLog('Setting up auth state listener...');
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      authDebugLog('Auth state changed:', {
+        userId: user?.uid || 'null',
+        email: user?.email || 'null',
+        isAuthenticated: !!user
+      });
+      
       setCurrentUser(user);
       setLoading(false);
+      
+      // Control Firestore network based on authentication status
+      if (user) {
+        // User is authenticated, initialize Firestore and enable network
+        authDebugLog('User authenticated, initializing Firestore...');
+        try {
+          const db = getDb(); // This will initialize Firestore
+          if (db) {
+            authDebugLog('Firestore instance obtained, enabling network...');
+            // Add a small delay to ensure proper initialization
+            setTimeout(async () => {
+              await controlFirestoreNetwork(true);
+            }, 100);
+          } else {
+            authDebugLog('Failed to get Firestore instance');
+          }
+        } catch (error) {
+          authDebugLog('Error initializing Firestore:', error);
+        }
+      } else {
+        // User is not authenticated, disable Firestore network to prevent 400 errors
+        authDebugLog('User not authenticated, disabling Firestore...');
+        try {
+          // Only try to disable network if Firestore has been initialized
+          const db = getDb();
+          if (db) {
+            await controlFirestoreNetwork(false);
+          } else {
+            authDebugLog('Firestore not initialized yet, skipping network disable');
+          }
+        } catch (error) {
+          authDebugLog('Error disabling Firestore network:', error);
+        }
+      }
     });
 
-    return unsubscribe;
+    return () => {
+      authDebugLog('Cleaning up auth state listener');
+      unsubscribe();
+    };
   }, []);
 
   const value = {

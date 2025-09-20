@@ -7,6 +7,7 @@ import PipelineLines from './components/PipelineLines';
 import VoiceAgent from './components/VoiceAgent';
 import authImage from './assets/logo/authImage.jpg';
 import { GroceryForecastingApp, EvaluationScreen, OrdersScreen } from './EnhancedUI';
+import EnhancedAnalytics from './components/EnhancedAnalytics';
 import MapboxMap from './components/MapboxMap';
 import MappedInGroceryStore from './components/MappedInGroceryStore';
 import { geminiChatService } from './services/geminiService';
@@ -514,7 +515,10 @@ function DashboardPage() {
   useEffect(() => {
     if (currentUser) {
       geminiChatService.setUserId(currentUser.uid);
-      loadMessagesFromFirebase();
+      // Add a small delay to ensure Firestore is properly initialized
+      setTimeout(() => {
+        loadMessagesFromFirebase();
+      }, 500);
     } else {
       geminiChatService.setUserId(null);
       setChatMessages([]);
@@ -921,8 +925,8 @@ function DashboardPage() {
 
         {activeSection === 'analytics' && (
           <div className="pt-28 pl-2 pr-8 pb-8 animate-fade-in-up">
-            <div className="bg-white/20 backdrop-blur-md border border-white/30 rounded-2xl shadow-2xl">
-              <EvaluationScreen />
+            <div className="bg-white/20 backdrop-blur-md border border-white/30 rounded-3xl shadow-2xl overflow-hidden">
+              <EnhancedAnalytics />
             </div>
           </div>
         )}
