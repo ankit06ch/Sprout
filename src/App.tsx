@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { BrowserRouter as Router, Routes, Route, useNavigate } from 'react-router-dom';
 import { BarChart, AlertTriangle, Package, ChevronDown, Paperclip, Mic, ArrowRight, Menu, X, Home, Settings, HelpCircle, LogOut, Zap, MessageCircle, Calendar } from 'react-feather';
 import Header from './components/Header';
@@ -6,7 +6,25 @@ import ScrollIcons from './components/ScrollIcons';
 import PipelineLines from './components/PipelineLines';
 import authImage from './assets/logo/authImage.jpg';
 import { GroceryForecastingApp, EvaluationScreen, OrdersScreen } from './EnhancedUI';
+import MapboxMap from './components/MapboxMap';
+import MappedInGroceryStore from './components/MappedInGroceryStore';
 import { geminiChatService } from './services/geminiService';
+import SproutVoiceAgent from './components/SproutVoiceAgent';
+import { AuthProvider, useAuth } from './contexts/AuthContext';
+
+// Protected Route Component
+function ProtectedRoute({ children }: { children: React.ReactNode }) {
+  const { currentUser } = useAuth();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!currentUser) {
+      navigate('/login');
+    }
+  }, [currentUser, navigate]);
+
+  return currentUser ? <>{children}</> : null;
+}
 
 function App() {
   const [scrollProgress, setScrollProgress] = useState(0);
@@ -25,20 +43,72 @@ function App() {
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+  
   return (
-    <Router>
-      <Routes>
-        <Route path="/" element={<HomePage scrollProgress={scrollProgress} />} />
-        <Route path="/signup" element={<SignUpPage />} />
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/dashboard" element={<DashboardPage />} />
-        <Route path="/forecasting" element={<GroceryForecastingApp />} />
-      </Routes>
-    </Router>
+    <AuthProvider>
+      <Router>
+        <Routes>
+          <Route path="/" element={<HomePage scrollProgress={scrollProgress} />} />
+          <Route path="/signup" element={<SignUpPage />} />
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/dashboard" element={<ProtectedRoute><DashboardPage /></ProtectedRoute>} />
+          <Route path="/forecasting" element={<ProtectedRoute><GroceryForecastingApp /></ProtectedRoute>} />
+        </Routes>
+      </Router>
+    </AuthProvider>
+  );
+}
+
+// Typing Animation Component
+function TypingAnimation() {
+  const words = ['Sales', 'Inventory', 'Forecasting', 'Analytics', 'Planning'];
+  const [currentWordIndex, setCurrentWordIndex] = useState(0);
+  const [currentText, setCurrentText] = useState('');
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [typingSpeed, setTypingSpeed] = useState(150);
+
+  useEffect(() => {
+    const currentWord = words[currentWordIndex];
+    
+    const timeout = setTimeout(() => {
+      if (!isDeleting) {
+        // Typing
+        if (currentText.length < currentWord.length) {
+          setCurrentText(currentWord.slice(0, currentText.length + 1));
+          setTypingSpeed(150);
+        } else {
+          // Finished typing, wait then start deleting
+          setTimeout(() => setIsDeleting(true), 2000);
+        }
+      } else {
+        // Deleting
+        if (currentText.length > 0) {
+          setCurrentText(currentText.slice(0, -1));
+          setTypingSpeed(100);
+        } else {
+          // Finished deleting, move to next word
+          setIsDeleting(false);
+          setCurrentWordIndex((prev) => (prev + 1) % words.length);
+        }
+      }
+    }, typingSpeed);
+
+    return () => clearTimeout(timeout);
+  }, [currentText, isDeleting, currentWordIndex, typingSpeed, words]);
+
+  return (
+    <span className="relative">
+      <span className="bg-gradient-to-r from-green-600 to-green-700 bg-clip-text text-transparent font-bold">
+        {currentText}
+      </span>
+      <span className="animate-pulse text-green-600">|</span>
+    </span>
   );
 }
 
 function HomePage({ scrollProgress }: { scrollProgress: number }) {
+  const [isVoiceAgentOpen, setIsVoiceAgentOpen] = useState(false);
+
   return (
     <div className="bg-gradient-to-b from-[#DEE2ED] to-white relative overflow-hidden">
       {/* Hero Section - Full Screen */}
@@ -77,8 +147,8 @@ function HomePage({ scrollProgress }: { scrollProgress: number }) {
         <div className="flex items-start justify-center pt-32 h-full relative" style={{ zIndex: 10 }}>
           <div className="text-center max-w-4xl px-8 animate-fade-in-up">
             <h1 className="text-4xl md:text-6xl font-bold mb-4 bg-gradient-to-r from-[#2A2829] to-[#3A3C35] bg-clip-text text-transparent">
-              Smarter Sales,<br />
-              Less Waste
+              Smarter <TypingAnimation />,<br />
+              Less Waste.
             </h1>
             <p className="text-lg md:text-xl text-gray-700 mb-8 max-w-3xl mx-auto">
               AI demand forecasting for<br />
@@ -189,17 +259,56 @@ function HomePage({ scrollProgress }: { scrollProgress: number }) {
                 <p className="text-xs text-gray-600">Actionable insights to optimize inventory</p>
               </div>
             </div>
-            <button className="mt-6 bg-gradient-to-r from-green-600 to-green-700 text-white px-6 py-2 rounded-xl font-bold hover:from-green-700 hover:to-green-800 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-[1.02] text-sm">
-              Learn More
+            <button 
+              onClick={() => setIsVoiceAgentOpen(true)}
+              className="mt-6 bg-gradient-to-r from-green-600 to-green-700 text-white px-6 py-2 rounded-xl font-bold hover:from-green-700 hover:to-green-800 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-[1.02] text-sm flex items-center space-x-2 mx-auto"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+              </svg>
+              <span>Learn More with Voice</span>
             </button>
           </div>
         </div>
       </div>
+      
+      {/* Voice Agent Modal */}
+      <SproutVoiceAgent 
+        isOpen={isVoiceAgentOpen} 
+        onClose={() => setIsVoiceAgentOpen(false)} 
+      />
     </div>
   );
 }
 
 function SignUpPage() {
+  const { signup } = useAuth();
+  const navigate = useNavigate();
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (password !== confirmPassword) {
+      return setError('Passwords do not match');
+    }
+
+    try {
+      setError('');
+      setLoading(true);
+      await signup(email, password);
+      navigate('/dashboard');
+    } catch (error: any) {
+      setError(error.message || 'Failed to create an account');
+    }
+    setLoading(false);
+  };
+
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-[#DEE2ED] to-white">
       <Header />
@@ -209,36 +318,51 @@ function SignUpPage() {
           <div className="w-full max-w-md animate-slide-in-left">
             <h1 className="text-4xl font-bold text-gray-800 mb-2">Sign Up</h1>
             <p className="text-gray-600 mb-8">Create your account to get started</p>
-            <form className="space-y-6">
+            <form onSubmit={handleSubmit} className="space-y-6">
+              {error && (
+                <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+                  {error}
+                </div>
+              )}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">Email</label>
                 <input 
                   type="email" 
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
                   className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200"
                   placeholder="Enter your email"
+                  required
                 />
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">Password</label>
                 <input 
                   type="password" 
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
                   className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200"
                   placeholder="Create a password"
+                  required
                 />
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">Confirm Password</label>
                 <input 
                   type="password" 
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
                   className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200"
                   placeholder="Confirm your password"
+                  required
                 />
               </div>
               <button 
                 type="submit"
-                className="w-full bg-gradient-to-r from-green-600 to-green-700 text-white py-3 rounded-xl font-bold hover:from-green-700 hover:to-green-800 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-[1.02]"
+                disabled={loading}
+                className="w-full bg-gradient-to-r from-green-600 to-green-700 text-white py-3 rounded-xl font-bold hover:from-green-700 hover:to-green-800 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                Create Account
+                {loading ? 'Creating Account...' : 'Create Account'}
               </button>
               <p className="text-center text-gray-600">
                 Already have an account?{' '}
@@ -267,11 +391,25 @@ function SignUpPage() {
 }
 
 function LoginPage() {
+  const { login } = useAuth();
   const navigate = useNavigate();
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
 
-  const handleSignIn = (e: React.FormEvent) => {
+  const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
-    navigate('/dashboard');
+    
+    try {
+      setError('');
+      setLoading(true);
+      await login(email, password);
+      navigate('/dashboard');
+    } catch (error) {
+      setError('Failed to log in');
+    }
+    setLoading(false);
   };
 
   return (
@@ -284,20 +422,31 @@ function LoginPage() {
             <h1 className="text-4xl font-bold text-gray-800 mb-2">Welcome Back</h1>
             <p className="text-gray-600 mb-8">Sign in to your account</p>
             <form className="space-y-6" onSubmit={handleSignIn}>
+              {error && (
+                <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+                  {error}
+                </div>
+              )}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">Email</label>
                 <input 
                   type="email" 
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
                   className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200"
                   placeholder="Enter your email"
+                  required
                 />
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">Password</label>
                 <input 
                   type="password" 
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
                   className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200"
                   placeholder="Enter your password"
+                  required
                 />
               </div>
               <div className="flex items-center justify-between">
@@ -311,9 +460,10 @@ function LoginPage() {
               </div>
               <button 
                 type="submit"
-                className="w-full bg-gradient-to-r from-green-600 to-green-700 text-white py-3 rounded-xl font-bold hover:from-green-700 hover:to-green-800 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-[1.02]"
+                disabled={loading}
+                className="w-full bg-gradient-to-r from-green-600 to-green-700 text-white py-3 rounded-xl font-bold hover:from-green-700 hover:to-green-800 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                Sign In
+                {loading ? 'Signing In...' : 'Sign In'}
               </button>
               <p className="text-center text-gray-600">
                 Don't have an account?{' '}
@@ -342,11 +492,41 @@ function LoginPage() {
 }
 
 function DashboardPage() {
+  const { currentUser, logout } = useAuth();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [activeSection, setActiveSection] = useState('dashboard');
   const [searchQuery, setSearchQuery] = useState('');
   const [chatMessages, setChatMessages] = useState<Array<{role: 'user' | 'assistant', content: string, timestamp: Date}>>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  };
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [chatMessages]);
+
+  // Load messages from Firebase when user logs in
+  useEffect(() => {
+    if (currentUser) {
+      geminiChatService.setUserId(currentUser.uid);
+      loadMessagesFromFirebase();
+    } else {
+      geminiChatService.setUserId(null);
+      setChatMessages([]);
+    }
+  }, [currentUser]);
+
+  const loadMessagesFromFirebase = async () => {
+    try {
+      const messages = await geminiChatService.loadMessagesFromFirebase();
+      setChatMessages(messages);
+    } catch (error) {
+      console.error('Error loading messages:', error);
+    }
+  };
 
   const handleSendMessage = async () => {
     if (!searchQuery.trim() || isLoading) return;
@@ -458,7 +638,13 @@ function DashboardPage() {
           
           {/* Logout */}
           <div className="p-4 border-t border-white/20">
-            <NavItem icon={LogOut} label="Logout" expanded={sidebarOpen} />
+            <button 
+              onClick={logout}
+              className="w-full flex items-center space-x-3 px-3 py-2 rounded-lg transition-all duration-300 font-inter transform hover:scale-105 text-gray-700 hover:bg-white/20"
+            >
+              <LogOut className="w-5 h-5 flex-shrink-0" />
+              {sidebarOpen && <span className="text-sm font-medium">Logout</span>}
+            </button>
           </div>
         </div>
       </div>
@@ -583,7 +769,7 @@ function DashboardPage() {
                   {/* Left Section - Chat Messages + Search */}
                   <div className="bg-white/20 backdrop-blur-md border border-white/30 rounded-2xl shadow-2xl p-6 flex flex-col">
                     {/* Chat Messages */}
-                    <div className="flex-1 mb-6">
+                    <div className="mb-2">
                       <div className="flex items-center justify-between mb-4">
                         <h3 className="text-lg font-semibold text-gray-800 flex items-center">
                           <MessageCircle className="w-5 h-5 mr-2 text-blue-600" />
@@ -596,7 +782,7 @@ function DashboardPage() {
                           Clear Chat
                         </button>
                       </div>
-                      <div className="space-y-4 overflow-y-auto h-80">
+                      <div className="space-y-4 overflow-y-auto h-80 pb-6">
                         {chatMessages.map((message, index) => (
                           <div
                             key={index}
@@ -610,7 +796,10 @@ function DashboardPage() {
                               }`}
                             >
                               <div className="flex-1">
-                                <p className="text-sm whitespace-pre-wrap">{message.content}</p>
+                                <div 
+                                  className="text-sm"
+                                  dangerouslySetInnerHTML={{ __html: message.content.replace(/\n/g, '<br>') }}
+                                />
                                 <p className="text-xs opacity-70 mt-1">
                                   {message.timestamp.toLocaleTimeString([], { 
                                     hour: '2-digit', 
@@ -635,6 +824,7 @@ function DashboardPage() {
                           </div>
                           </div>
                         )}
+                        <div ref={messagesEndRef} />
                       </div>
                     </div>
                     
@@ -699,18 +889,21 @@ function DashboardPage() {
                         Analysis & Insights
                       </h3>
                       <div className="text-xs text-gray-500">
-                        Coming Soon
+                        Interactive Store Map & Product Search
                       </div>
                     </div>
-                    <div className="flex-1 flex items-center justify-center">
-                      <div className="text-center text-gray-500">
-                        <BarChart className="w-16 h-16 mx-auto mb-4 text-gray-300" />
-                        <p className="text-lg font-medium mb-2">Enhanced Analysis</p>
-                        <p className="text-sm text-gray-400 max-w-xs">
-                          This section will contain detailed analysis, charts, and insights based on your conversations and forecasting data.
-                        </p>
-                      </div>
-                    </div>
+         <div className="flex-1 flex flex-col">
+           <MappedInGroceryStore 
+             className="w-full flex-1 min-h-[400px]" 
+             onSendChatMessage={(message) => {
+               setChatMessages(prev => [...prev, {
+                 role: 'assistant',
+                 content: message,
+                 timestamp: new Date()
+               }]);
+             }}
+           />
+         </div>
                   </div>
                 </div>
               </div>
@@ -729,125 +922,104 @@ function DashboardPage() {
         {activeSection === 'events' && (
           <div className="pt-28 pl-2 pr-8 pb-8 animate-fade-in-up">
             <div className="bg-white/20 backdrop-blur-md border border-white/30 rounded-2xl shadow-2xl">
-              <div className="space-y-4 p-5">
-                <div className="flex items-center justify-between mb-3">
-                  <div>
-                    <h1 className="text-xl font-bold text-gray-800 flex items-center">
-                      <Calendar className="w-5 h-5 mr-2 text-blue-600" />
-                      Events Management
-                    </h1>
-                    <p className="text-gray-600 text-xs">Track and manage events that impact your grocery forecasting</p>
-                  </div>
-                  <button className="bg-blue-600 text-white px-4 py-1.5 rounded-lg hover:bg-blue-700 transition-colors font-inter text-xs">
-                    Add Event
-                  </button>
-                </div>
-
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                  {/* Upcoming Events */}
-                  <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4 border border-white/20">
-                    <h3 className="text-base font-semibold text-gray-800 mb-2">Upcoming Events</h3>
-                    <div className="space-y-2">
-                      <div className="bg-white/20 backdrop-blur-sm rounded-lg p-2 border border-white/30">
-                        <div className="flex items-center justify-between">
-                          <div>
-                            <h4 className="font-semibold text-gray-800 text-xs">Holiday Season</h4>
-                            <p className="text-xs text-gray-600">December 15-31, 2024</p>
-                          </div>
-                          <span className="bg-red-100 text-red-800 px-2 py-0.5 rounded-full text-xs font-medium">High</span>
-                        </div>
-                        <p className="text-xs text-gray-700 mt-1">40% increase in holiday sales expected</p>
-                      </div>
-                      
-                      <div className="bg-white/20 backdrop-blur-sm rounded-lg p-2 border border-white/30">
-                        <div className="flex items-center justify-between">
-                          <div>
-                            <h4 className="font-semibold text-gray-800 text-xs">Local Festival</h4>
-                            <p className="text-xs text-gray-600">March 8-10, 2024</p>
-                          </div>
-                          <span className="bg-yellow-100 text-yellow-800 px-2 py-0.5 rounded-full text-xs font-medium">Medium</span>
-                        </div>
-                        <p className="text-xs text-gray-700 mt-1">Food festival affecting produce demand</p>
-                      </div>
-                      
-                      <div className="bg-white/20 backdrop-blur-sm rounded-lg p-2 border border-white/30">
-                        <div className="flex items-center justify-between">
-                          <div>
-                            <h4 className="font-semibold text-gray-800 text-xs">Weather Alert</h4>
-                            <p className="text-xs text-gray-600">January 20-22, 2024</p>
-                          </div>
-                          <span className="bg-blue-100 text-blue-800 px-2 py-0.5 rounded-full text-xs font-medium">Low</span>
-                        </div>
-                        <p className="text-xs text-gray-700 mt-1">Storm expected to affect delivery schedules</p>
-                      </div>
-                    </div>
+              {/* Two column layout - Map and Events */}
+              <div className="p-5">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 h-[600px]">
+                  {/* Left Column - Interactive Mapbox Map */}
+                  <div className="overflow-hidden rounded-lg">
+                    <MapboxMap 
+                      apiToken="pk.eyJ1IjoiYWNoYW5kcmEzMDAiLCJhIjoiY202MnptdnNwMHV5ajJxb2NwemFrdjQzOCJ9.4MD5Ach6BHt98ooeBDoZ9A"
+                      className="h-full w-full"
+                    />
                   </div>
 
-                  {/* Event Analytics */}
-                  <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4 border border-white/20">
-                    <h3 className="text-base font-semibold text-gray-800 mb-2">Event Impact Analytics</h3>
-                    <div className="space-y-2">
-                      <div className="flex items-center justify-between p-2 bg-white/20 backdrop-blur-sm rounded-lg border border-white/30">
-                        <div>
-                          <h4 className="font-medium text-gray-800 text-xs">Weather Events</h4>
-                          <p className="text-xs text-gray-600">Last 30 days</p>
+                  {/* Right Column - Real-time Events */}
+                  <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4 border border-white/20 flex flex-col overflow-hidden">
+                    <h3 className="text-base font-semibold text-gray-800 mb-3 flex items-center">
+                      <span className="w-2 h-2 bg-red-500 rounded-full mr-2 animate-pulse"></span>
+                      Real-time Philadelphia Events
+                    </h3>
+                    
+                    <div className="flex-1 overflow-y-auto space-y-3">
+                      {/* Live Events Feed */}
+                      <div className="bg-gradient-to-r from-red-50 to-orange-50 rounded-lg p-3 border border-red-200">
+                        <div className="flex items-center justify-between mb-2">
+                          <h4 className="font-semibold text-gray-800 text-sm">Philadelphia Food & Wine Festival</h4>
+                          <span className="bg-red-500 text-white px-2 py-0.5 rounded-full text-xs font-medium animate-pulse">LIVE</span>
                         </div>
-                        <div className="text-right">
-                          <div className="text-lg font-bold text-green-600">+23%</div>
-                          <div className="text-xs text-gray-500">Demand</div>
-                        </div>
-                      </div>
-                      
-                      <div className="flex items-center justify-between p-2 bg-white/20 backdrop-blur-sm rounded-lg border border-white/30">
-                        <div>
-                          <h4 className="font-medium text-gray-800 text-xs">Promotional Events</h4>
-                          <p className="text-xs text-gray-600">Last 30 days</p>
-                        </div>
-                        <div className="text-right">
-                          <div className="text-lg font-bold text-blue-600">+18%</div>
-                          <div className="text-xs text-gray-500">Sales</div>
+                        <p className="text-xs text-gray-600 mb-1">Reading Terminal Market • Today 10AM-6PM</p>
+                        <p className="text-xs text-gray-700">Local food vendors, wine tastings, live cooking demos. Expected 40% increase in foot traffic.</p>
+                        <div className="flex items-center mt-2">
+                          <div className="w-1 h-1 bg-red-500 rounded-full animate-pulse mr-2"></div>
+                          <span className="text-xs text-gray-500">Updated 2 minutes ago</span>
                         </div>
                       </div>
                       
-                      <div className="flex items-center justify-between p-2 bg-white/20 backdrop-blur-sm rounded-lg border border-white/30">
-                        <div>
-                          <h4 className="font-medium text-gray-800 text-xs">Seasonal Events</h4>
-                          <p className="text-xs text-gray-600">Last 30 days</p>
+                      <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg p-3 border border-blue-200">
+                        <div className="flex items-center justify-between mb-2">
+                          <h4 className="font-semibold text-gray-800 text-sm">Pennsylvania Farm Show</h4>
+                          <span className="bg-blue-500 text-white px-2 py-0.5 rounded-full text-xs font-medium">TODAY</span>
                         </div>
-                        <div className="text-right">
-                          <div className="text-lg font-bold text-purple-600">+31%</div>
-                          <div className="text-xs text-gray-500">Revenue</div>
+                        <p className="text-xs text-gray-600 mb-1">Pennsylvania Convention Center • 9AM-9PM</p>
+                        <p className="text-xs text-gray-700">Agricultural showcase with local produce vendors. Impact on wholesale prices expected.</p>
+                        <div className="flex items-center mt-2">
+                          <div className="w-1 h-1 bg-blue-500 rounded-full mr-2"></div>
+                          <span className="text-xs text-gray-500">Updated 15 minutes ago</span>
                         </div>
                       </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Recent Event Activity */}
-                <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4 border border-white/20">
-                  <h3 className="text-base font-semibold text-gray-800 mb-2">Recent Event Activity</h3>
-                  <div className="space-y-1">
-                    <div className="flex items-center space-x-2 p-1.5 bg-white/20 backdrop-blur-sm rounded-lg border border-white/30">
-                      <div className="w-1.5 h-1.5 bg-green-500 rounded-full"></div>
-                      <div className="flex-1">
-                        <p className="text-xs text-gray-800">Weather alert - Rain expected for next 3 days</p>
-                        <p className="text-xs text-gray-500">2 hours ago</p>
+                      
+                      <div className="bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg p-3 border border-green-200">
+                        <div className="flex items-center justify-between mb-2">
+                          <h4 className="font-semibold text-gray-800 text-sm">Italian Market Festival</h4>
+                          <span className="bg-green-500 text-white px-2 py-0.5 rounded-full text-xs font-medium">THIS WEEKEND</span>
+                        </div>
+                        <p className="text-xs text-gray-600 mb-1">9th Street Italian Market • Sat-Sun 10AM-5PM</p>
+                        <p className="text-xs text-gray-700">Street festival with Italian food vendors, live music. High demand for specialty ingredients.</p>
+                        <div className="flex items-center mt-2">
+                          <div className="w-1 h-1 bg-green-500 rounded-full mr-2"></div>
+                          <span className="text-xs text-gray-500">Updated 1 hour ago</span>
+                        </div>
+                      </div>
+                      
+                      <div className="bg-gradient-to-r from-purple-50 to-pink-50 rounded-lg p-3 border border-purple-200">
+                        <div className="flex items-center justify-between mb-2">
+                          <h4 className="font-semibold text-gray-800 text-sm">Philadelphia Marathon</h4>
+                          <span className="bg-purple-500 text-white px-2 py-0.5 rounded-full text-xs font-medium">NEXT WEEK</span>
+                        </div>
+                        <p className="text-xs text-gray-600 mb-1">Benjamin Franklin Parkway • Nov 19, 7AM</p>
+                        <p className="text-xs text-gray-700">30,000+ runners expected. Increased demand for healthy snacks and energy drinks.</p>
+                        <div className="flex items-center mt-2">
+                          <div className="w-1 h-1 bg-purple-500 rounded-full mr-2"></div>
+                          <span className="text-xs text-gray-500">Updated 3 hours ago</span>
+                        </div>
+                      </div>
+                      
+                      <div className="bg-gradient-to-r from-yellow-50 to-amber-50 rounded-lg p-3 border border-yellow-200">
+                        <div className="flex items-center justify-between mb-2">
+                          <h4 className="font-semibold text-gray-800 text-sm">Thanksgiving Week Preparation</h4>
+                          <span className="bg-yellow-500 text-white px-2 py-0.5 rounded-full text-xs font-medium">SEASONAL</span>
+                        </div>
+                        <p className="text-xs text-gray-600 mb-1">Citywide • Nov 20-26</p>
+                        <p className="text-xs text-gray-700">Peak shopping period for holiday ingredients. 60% increase in grocery demand expected.</p>
+                        <div className="flex items-center mt-2">
+                          <div className="w-1 h-1 bg-yellow-500 rounded-full mr-2"></div>
+                          <span className="text-xs text-gray-500">Updated 6 hours ago</span>
+                        </div>
                       </div>
                     </div>
                     
-                    <div className="flex items-center space-x-2 p-1.5 bg-white/20 backdrop-blur-sm rounded-lg border border-white/30">
-                      <div className="w-1.5 h-1.5 bg-blue-500 rounded-full"></div>
-                      <div className="flex-1">
-                        <p className="text-xs text-gray-800">Holiday forecast updated - Increased demand predicted</p>
-                        <p className="text-xs text-gray-500">4 hours ago</p>
-                      </div>
-                    </div>
-                    
-                    <div className="flex items-center space-x-2 p-1.5 bg-white/20 backdrop-blur-sm rounded-lg border border-white/30">
-                      <div className="w-1.5 h-1.5 bg-yellow-500 rounded-full"></div>
-                      <div className="flex-1">
-                        <p className="text-xs text-gray-800">Local event detected - Food festival downtown</p>
-                        <p className="text-xs text-gray-500">6 hours ago</p>
+                    {/* Event Impact Summary */}
+                    <div className="mt-4 bg-white/20 backdrop-blur-sm rounded-lg p-3 border border-white/30">
+                      <h4 className="text-sm font-semibold text-gray-800 mb-2">Impact Summary</h4>
+                      <div className="grid grid-cols-2 gap-2 text-xs">
+                        <div className="flex justify-between">
+                          <span>Active Events:</span>
+                          <span className="font-semibold text-blue-600">3</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span>Expected Demand:</span>
+                          <span className="font-semibold text-green-600">+35%</span>
+                        </div>
                       </div>
                     </div>
                   </div>
