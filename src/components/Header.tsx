@@ -50,8 +50,8 @@ const Header: React.FC = () => {
                   </button>
                   
                   {/* Profile Circle */}
-                  <button className="w-10 h-10 bg-gradient-to-r from-green-500 to-green-600 rounded-full flex items-center justify-center hover:from-green-600 hover:to-green-700 transition-all duration-200 shadow-lg hover:shadow-xl">
-                    <User className="w-5 h-5 text-white" strokeWidth={2.5} />
+                  <button className="relative p-2 text-gray-800 hover:text-gray-600 hover:bg-white/20 rounded-full transition-all duration-200">
+                    <User className="w-5 h-5" />
                   </button>
                 </div>
               ) : (

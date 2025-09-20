@@ -49,10 +49,10 @@ const PipelineLines: React.FC = () => {
   const videoX = centerX;
   const videoY = window.innerHeight - 32; // -bottom-32 from hero section
 
-  // Merge points for left and right sides
-  const leftMergeX = centerX - 200;
-  const rightMergeX = centerX + 200;
-  const mergeY = centerY + 100;
+  // Merge points for left and right sides (for future use)
+  // const leftMergeX = centerX - 200;
+  // const rightMergeX = centerX + 200;
+  // const mergeY = centerY + 100;
 
   return (
     <div className="fixed inset-0 pointer-events-none" style={{ zIndex: 4 }}>
