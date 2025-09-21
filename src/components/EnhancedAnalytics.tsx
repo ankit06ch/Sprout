@@ -8,7 +8,9 @@ import {
   Target,
   AlertTriangle,
   CheckCircle,
-  Eye
+  Eye,
+  BarChart,
+  RefreshCw
 } from 'lucide-react';
 import AnalyticsFilters from './AnalyticsFilters';
 import RealTimeMetrics from './RealTimeMetrics';
@@ -510,7 +512,7 @@ const EnhancedAnalytics: React.FC = () => {
           <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-6 border border-blue-200/50 hover:shadow-lg transition-shadow">
             <div className="text-center">
               <div className="w-12 h-12 bg-blue-500 rounded-xl flex items-center justify-center mx-auto mb-3">
-                <span className="text-white text-xl">📊</span>
+                <BarChart className="w-6 h-6 text-white" />
               </div>
               <div className="text-3xl font-bold text-blue-700 mb-1">
                 {Math.round(salesData.reduce((sum, d) => sum + (d.predicted || 0), 0) / salesData.length).toLocaleString()}
@@ -522,7 +524,7 @@ const EnhancedAnalytics: React.FC = () => {
           <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-xl p-6 border border-green-200/50 hover:shadow-lg transition-shadow">
             <div className="text-center">
               <div className="w-12 h-12 bg-green-500 rounded-xl flex items-center justify-center mx-auto mb-3">
-                <span className="text-white text-xl">✅</span>
+                <CheckCircle className="w-6 h-6 text-white" />
               </div>
               <div className="text-3xl font-bold text-green-700 mb-1">
                 {Math.round(salesData.reduce((sum, d) => sum + (d.actual || 0), 0) / salesData.length).toLocaleString()}
@@ -534,7 +536,7 @@ const EnhancedAnalytics: React.FC = () => {
           <div className="bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl p-6 border border-purple-200/50 hover:shadow-lg transition-shadow">
             <div className="text-center">
               <div className="w-12 h-12 bg-purple-500 rounded-xl flex items-center justify-center mx-auto mb-3">
-                <span className="text-white text-xl">🎯</span>
+                <Target className="w-6 h-6 text-white" />
               </div>
               <div className="text-3xl font-bold text-purple-700 mb-1">{accuracy}%</div>
               <div className="text-sm text-purple-600 font-semibold">Overall Accuracy</div>
@@ -544,7 +546,7 @@ const EnhancedAnalytics: React.FC = () => {
           <div className="bg-gradient-to-br from-orange-50 to-orange-100 rounded-xl p-6 border border-orange-200/50 hover:shadow-lg transition-shadow">
             <div className="text-center">
               <div className="w-12 h-12 bg-orange-500 rounded-xl flex items-center justify-center mx-auto mb-3">
-                <span className="text-white text-xl">📈</span>
+                <TrendingUp className="w-6 h-6 text-white" />
               </div>
               <div className="text-3xl font-bold text-orange-700 mb-1">
                 {Math.round(Math.abs(totalPredicted - totalRevenue) / totalPredicted * 100)}%
@@ -745,7 +747,7 @@ const EnhancedAnalytics: React.FC = () => {
       <div className="bg-white/70 backdrop-blur-sm rounded-2xl p-8 border border-white/30 shadow-lg mb-8">
         <div className="flex items-center gap-3 mb-6">
           <div className="w-10 h-10 bg-gradient-to-r from-green-500 to-emerald-600 rounded-xl flex items-center justify-center">
-            <span className="text-white text-xl">♻️</span>
+            <RefreshCw className="w-5 h-5 text-white" />
           </div>
           <h3 className="text-2xl font-bold text-gray-900">Waste Reduction Analysis</h3>
         </div>
@@ -753,7 +755,7 @@ const EnhancedAnalytics: React.FC = () => {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div className="text-center p-6 bg-gradient-to-br from-green-50 to-green-100 rounded-xl border border-green-200/50 hover:shadow-lg transition-shadow">
             <div className="w-16 h-16 bg-green-500 rounded-xl flex items-center justify-center mx-auto mb-4">
-              <span className="text-white text-2xl">📊</span>
+              <BarChart className="w-8 h-8 text-white" />
             </div>
             <div className="text-4xl font-bold text-green-700 mb-2">3.8%</div>
             <div className="text-lg font-semibold text-green-600 mb-1">Waste Rate</div>
@@ -762,7 +764,7 @@ const EnhancedAnalytics: React.FC = () => {
           
           <div className="text-center p-6 bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl border border-blue-200/50 hover:shadow-lg transition-shadow">
             <div className="w-16 h-16 bg-blue-500 rounded-xl flex items-center justify-center mx-auto mb-4">
-              <span className="text-white text-2xl">💰</span>
+              <DollarSign className="w-8 h-8 text-white" />
             </div>
             <div className="text-4xl font-bold text-blue-700 mb-2">$2,340</div>
             <div className="text-lg font-semibold text-blue-600 mb-1">Monthly Savings</div>
@@ -771,7 +773,7 @@ const EnhancedAnalytics: React.FC = () => {
           
           <div className="text-center p-6 bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl border border-purple-200/50 hover:shadow-lg transition-shadow">
             <div className="w-16 h-16 bg-purple-500 rounded-xl flex items-center justify-center mx-auto mb-4">
-              <span className="text-white text-2xl">🎯</span>
+              <Target className="w-8 h-8 text-white" />
             </div>
             <div className="text-4xl font-bold text-purple-700 mb-2">87%</div>
             <div className="text-lg font-semibold text-purple-600 mb-1">Efficiency Score</div>
