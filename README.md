@@ -1,4 +1,4 @@
-# 🌍 AI-Powered Grocery Intelligence
+# 🌍 SPROUT AI
 
 ## Overview  
 This project is building the **future of grocery intelligence** — a platform that combines **AI forecasting, real-time data, and immersive visualization** to help grocery retailers operate smarter, reduce waste, and improve food availability.  
