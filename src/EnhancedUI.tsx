@@ -12,7 +12,6 @@ import {
   Bell,
   Download,
   Upload,
-  Filter,
   Wifi,
   ShoppingCart,
   ExternalLink,
@@ -137,6 +136,800 @@ const SAMPLE_ORDERS: OrderRow[] = [
       apiEndpoint: "https://api.gfs.com/products",
       price: 1.45,
       availability: false
+    }
+  },
+  // Additional products for comprehensive inventory
+  { 
+    vendor: "Garden Fresh", 
+    productId: "GF-AP-15", 
+    product: "Apples Red Delicious", 
+    next: "2025-09-24", 
+    onHand: 150, 
+    proj: 100, 
+    rec: 75,
+    retailer: {
+      name: "Sysco",
+      website: "https://www.sysco.com",
+      apiEndpoint: "https://api.sysco.com/products",
+      price: 2.15,
+      availability: true
+    }
+  },
+  { 
+    vendor: "Dairy Direct", 
+    productId: "DD-MK-02", 
+    product: "Organic Milk 2%", 
+    next: "2025-09-22", 
+    onHand: 45, 
+    proj: 120, 
+    rec: 80,
+    retailer: {
+      name: "US Foods",
+      website: "https://www.usfoods.com",
+      apiEndpoint: "https://api.usfoods.com/products",
+      price: 3.45,
+      availability: true
+    }
+  },
+  { 
+    vendor: "Meat Masters", 
+    productId: "MM-CH-08", 
+    product: "Chicken Breast", 
+    next: "2025-09-25", 
+    onHand: 85, 
+    proj: 60, 
+    rec: 40,
+    retailer: {
+      name: "Performance Food Group",
+      website: "https://www.pfgc.com",
+      apiEndpoint: "https://api.pfgc.com/products",
+      price: 6.85,
+      availability: true
+    }
+  },
+  { 
+    vendor: "Bakery Fresh", 
+    productId: "BF-BR-12", 
+    product: "Whole Wheat Bread", 
+    next: "2025-09-22", 
+    onHand: 25, 
+    proj: 50, 
+    rec: 30,
+    retailer: {
+      name: "Gordon Food Service",
+      website: "https://www.gfs.com",
+      apiEndpoint: "https://api.gfs.com/products",
+      price: 2.95,
+      availability: true
+    }
+  },
+  { 
+    vendor: "Seafood Co", 
+    productId: "SC-SL-05", 
+    product: "Salmon Fillet", 
+    next: "2025-09-24", 
+    onHand: 30, 
+    proj: 25, 
+    rec: 20,
+    retailer: {
+      name: "Sysco",
+      website: "https://www.sysco.com",
+      apiEndpoint: "https://api.sysco.com/products",
+      price: 12.50,
+      availability: true
+    }
+  },
+  { 
+    vendor: "Pantry Plus", 
+    productId: "PP-TP-20", 
+    product: "Toilet Paper 12-pack", 
+    next: "2025-09-26", 
+    onHand: 8, 
+    proj: 45, 
+    rec: 50,
+    retailer: {
+      name: "US Foods",
+      website: "https://www.usfoods.com",
+      apiEndpoint: "https://api.usfoods.com/products",
+      price: 18.95,
+      availability: true
+    }
+  },
+  { 
+    vendor: "Spice World", 
+    productId: "SW-GA-03", 
+    product: "Garlic Powder", 
+    next: "2025-09-27", 
+    onHand: 15, 
+    proj: 8, 
+    rec: 12,
+    retailer: {
+      name: "Performance Food Group",
+      website: "https://www.pfgc.com",
+      apiEndpoint: "https://api.pfgc.com/products",
+      price: 4.75,
+      availability: true
+    }
+  },
+  { 
+    vendor: "Frozen Foods", 
+    productId: "FF-PZ-14", 
+    product: "Frozen Pizza Margherita", 
+    next: "2025-09-25", 
+    onHand: 120, 
+    proj: 80, 
+    rec: 60,
+    retailer: {
+      name: "Gordon Food Service",
+      website: "https://www.gfs.com",
+      apiEndpoint: "https://api.gfs.com/products",
+      price: 7.25,
+      availability: false
+    }
+  },
+  { 
+    vendor: "Organic Valley", 
+    productId: "OV-EG-06", 
+    product: "Free Range Eggs", 
+    next: "2025-09-23", 
+    onHand: 90, 
+    proj: 70, 
+    rec: 45,
+    retailer: {
+      name: "Sysco",
+      website: "https://www.sysco.com",
+      apiEndpoint: "https://api.sysco.com/products",
+      price: 4.85,
+      availability: true
+    }
+  },
+  { 
+    vendor: "Grain Masters", 
+    productId: "GM-RC-09", 
+    product: "Basmati Rice", 
+    next: "2025-09-28", 
+    onHand: 200, 
+    proj: 150, 
+    rec: 100,
+    retailer: {
+      name: "US Foods",
+      website: "https://www.usfoods.com",
+      apiEndpoint: "https://api.usfoods.com/products",
+      price: 3.25,
+      availability: true
+    }
+  },
+  { 
+    vendor: "Beverage Co", 
+    productId: "BC-WA-11", 
+    product: "Sparkling Water", 
+    next: "2025-09-24", 
+    onHand: 180, 
+    proj: 120, 
+    rec: 80,
+    retailer: {
+      name: "Performance Food Group",
+      website: "https://www.pfgc.com",
+      apiEndpoint: "https://api.pfgc.com/products",
+      price: 1.85,
+      availability: true
+    }
+  },
+  { 
+    vendor: "Snack Time", 
+    productId: "ST-CH-07", 
+    product: "Dark Chocolate Bars", 
+    next: "2025-09-26", 
+    onHand: 65, 
+    proj: 40, 
+    rec: 35,
+    retailer: {
+      name: "Gordon Food Service",
+      website: "https://www.gfs.com",
+      apiEndpoint: "https://api.gfs.com/products",
+      price: 5.95,
+      availability: true
+    }
+  },
+  // Additional Produce Items
+  { 
+    vendor: "Green Valley", 
+    productId: "GV-BR-18", 
+    product: "Broccoli Crowns", 
+    next: "2025-09-24", 
+    onHand: 75, 
+    proj: 45, 
+    rec: 40,
+    retailer: {
+      name: "Sysco",
+      website: "https://www.sysco.com",
+      apiEndpoint: "https://api.sysco.com/products",
+      price: 2.95,
+      availability: true
+    }
+  },
+  { 
+    vendor: "Farm Fresh", 
+    productId: "FF-ON-22", 
+    product: "Red Onions", 
+    next: "2025-09-25", 
+    onHand: 110, 
+    proj: 80, 
+    rec: 60,
+    retailer: {
+      name: "US Foods",
+      website: "https://www.usfoods.com",
+      apiEndpoint: "https://api.usfoods.com/products",
+      price: 1.75,
+      availability: true
+    }
+  },
+  { 
+    vendor: "Organic Harvest", 
+    productId: "OH-TM-14", 
+    product: "Tomatoes Roma", 
+    next: "2025-09-23", 
+    onHand: 95, 
+    proj: 70, 
+    rec: 50,
+    retailer: {
+      name: "Performance Food Group",
+      website: "https://www.pfgc.com",
+      apiEndpoint: "https://api.pfgc.com/products",
+      price: 3.25,
+      availability: true
+    }
+  },
+  { 
+    vendor: "Crisp Greens", 
+    productId: "CG-LT-09", 
+    product: "Iceberg Lettuce", 
+    next: "2025-09-22", 
+    onHand: 85, 
+    proj: 55, 
+    rec: 45,
+    retailer: {
+      name: "Gordon Food Service",
+      website: "https://www.gfs.com",
+      apiEndpoint: "https://api.gfs.com/products",
+      price: 2.45,
+      availability: false
+    }
+  },
+  { 
+    vendor: "Citrus Grove", 
+    productId: "CG-OR-33", 
+    product: "Oranges Navel", 
+    next: "2025-09-26", 
+    onHand: 140, 
+    proj: 100, 
+    rec: 75,
+    retailer: {
+      name: "Sysco",
+      website: "https://www.sysco.com",
+      apiEndpoint: "https://api.sysco.com/products",
+      price: 2.85,
+      availability: true
+    }
+  },
+  { 
+    vendor: "Root Cellar", 
+    productId: "RC-PT-27", 
+    product: "Russet Potatoes", 
+    next: "2025-09-28", 
+    onHand: 200, 
+    proj: 150, 
+    rec: 120,
+    retailer: {
+      name: "US Foods",
+      website: "https://www.usfoods.com",
+      apiEndpoint: "https://api.usfoods.com/products",
+      price: 1.95,
+      availability: true
+    }
+  },
+  { 
+    vendor: "Pepper Patch", 
+    productId: "PP-BP-41", 
+    product: "Bell Peppers Mixed", 
+    next: "2025-09-24", 
+    onHand: 60, 
+    proj: 40, 
+    rec: 35,
+    retailer: {
+      name: "Performance Food Group",
+      website: "https://www.pfgc.com",
+      apiEndpoint: "https://api.pfgc.com/products",
+      price: 4.75,
+      availability: true
+    }
+  },
+  { 
+    vendor: "Herb Garden", 
+    productId: "HG-BL-16", 
+    product: "Fresh Basil", 
+    next: "2025-09-22", 
+    onHand: 25, 
+    proj: 15, 
+    rec: 20,
+    retailer: {
+      name: "Gordon Food Service",
+      website: "https://www.gfs.com",
+      apiEndpoint: "https://api.gfs.com/products",
+      price: 6.95,
+      availability: true
+    }
+  },
+  // Additional Dairy Items
+  { 
+    vendor: "Creamery Co", 
+    productId: "CC-YG-29", 
+    product: "Greek Yogurt Vanilla", 
+    next: "2025-09-23", 
+    onHand: 55, 
+    proj: 35, 
+    rec: 40,
+    retailer: {
+      name: "Sysco",
+      website: "https://www.sysco.com",
+      apiEndpoint: "https://api.sysco.com/products",
+      price: 4.25,
+      availability: true
+    }
+  },
+  { 
+    vendor: "Cheese Masters", 
+    productId: "CM-CH-37", 
+    product: "Sharp Cheddar Block", 
+    next: "2025-09-25", 
+    onHand: 40, 
+    proj: 25, 
+    rec: 30,
+    retailer: {
+      name: "US Foods",
+      website: "https://www.usfoods.com",
+      apiEndpoint: "https://api.usfoods.com/products",
+      price: 8.95,
+      availability: true
+    }
+  },
+  { 
+    vendor: "Butter Works", 
+    productId: "BW-BT-44", 
+    product: "Unsalted Butter", 
+    next: "2025-09-24", 
+    onHand: 30, 
+    proj: 20, 
+    rec: 25,
+    retailer: {
+      name: "Performance Food Group",
+      website: "https://www.pfgc.com",
+      apiEndpoint: "https://api.pfgc.com/products",
+      price: 5.75,
+      availability: true
+    }
+  },
+  { 
+    vendor: "Sour Cream Co", 
+    productId: "SC-SC-52", 
+    product: "Sour Cream 16oz", 
+    next: "2025-09-22", 
+    onHand: 45, 
+    proj: 30, 
+    rec: 35,
+    retailer: {
+      name: "Gordon Food Service",
+      website: "https://www.gfs.com",
+      apiEndpoint: "https://api.gfs.com/products",
+      price: 3.45,
+      availability: false
+    }
+  },
+  // Additional Meat Items
+  { 
+    vendor: "Beef Brothers", 
+    productId: "BB-GB-58", 
+    product: "Ground Beef 85/15", 
+    next: "2025-09-23", 
+    onHand: 70, 
+    proj: 50, 
+    rec: 45,
+    retailer: {
+      name: "Sysco",
+      website: "https://www.sysco.com",
+      apiEndpoint: "https://api.sysco.com/products",
+      price: 7.95,
+      availability: true
+    }
+  },
+  { 
+    vendor: "Pork Palace", 
+    productId: "PP-BC-63", 
+    product: "Bacon Thick Cut", 
+    next: "2025-09-25", 
+    onHand: 35, 
+    proj: 25, 
+    rec: 30,
+    retailer: {
+      name: "US Foods",
+      website: "https://www.usfoods.com",
+      apiEndpoint: "https://api.usfoods.com/products",
+      price: 9.95,
+      availability: true
+    }
+  },
+  { 
+    vendor: "Turkey Time", 
+    productId: "TT-GT-67", 
+    product: "Ground Turkey 93/7", 
+    next: "2025-09-24", 
+    onHand: 50, 
+    proj: 35, 
+    rec: 40,
+    retailer: {
+      name: "Performance Food Group",
+      website: "https://www.pfgc.com",
+      apiEndpoint: "https://api.pfgc.com/products",
+      price: 8.25,
+      availability: true
+    }
+  },
+  { 
+    vendor: "Ham House", 
+    productId: "HH-HM-71", 
+    product: "Honey Ham Sliced", 
+    next: "2025-09-26", 
+    onHand: 25, 
+    proj: 20, 
+    rec: 22,
+    retailer: {
+      name: "Gordon Food Service",
+      website: "https://www.gfs.com",
+      apiEndpoint: "https://api.gfs.com/products",
+      price: 11.95,
+      availability: true
+    }
+  },
+  // Additional Pantry Items
+  { 
+    vendor: "Pasta Pro", 
+    productId: "PP-SP-75", 
+    product: "Spaghetti 1lb", 
+    next: "2025-09-27", 
+    onHand: 120, 
+    proj: 80, 
+    rec: 90,
+    retailer: {
+      name: "Sysco",
+      website: "https://www.sysco.com",
+      apiEndpoint: "https://api.sysco.com/products",
+      price: 2.25,
+      availability: true
+    }
+  },
+  { 
+    vendor: "Sauce Specialists", 
+    productId: "SS-MS-79", 
+    product: "Marinara Sauce", 
+    next: "2025-09-25", 
+    onHand: 80, 
+    proj: 55, 
+    rec: 60,
+    retailer: {
+      name: "US Foods",
+      website: "https://www.usfoods.com",
+      apiEndpoint: "https://api.usfoods.com/products",
+      price: 3.95,
+      availability: true
+    }
+  },
+  { 
+    vendor: "Oil Experts", 
+    productId: "OE-OO-83", 
+    product: "Extra Virgin Olive Oil", 
+    next: "2025-09-28", 
+    onHand: 40, 
+    proj: 25, 
+    rec: 30,
+    retailer: {
+      name: "Performance Food Group",
+      website: "https://www.pfgc.com",
+      apiEndpoint: "https://api.pfgc.com/products",
+      price: 12.95,
+      availability: true
+    }
+  },
+  { 
+    vendor: "Vinegar Co", 
+    productId: "VC-BV-87", 
+    product: "Balsamic Vinegar", 
+    next: "2025-09-26", 
+    onHand: 20, 
+    proj: 15, 
+    rec: 18,
+    retailer: {
+      name: "Gordon Food Service",
+      website: "https://www.gfs.com",
+      apiEndpoint: "https://api.gfs.com/products",
+      price: 8.75,
+      availability: false
+    }
+  },
+  { 
+    vendor: "Flour Mill", 
+    productId: "FM-AF-91", 
+    product: "All Purpose Flour", 
+    next: "2025-09-29", 
+    onHand: 100, 
+    proj: 70, 
+    rec: 80,
+    retailer: {
+      name: "Sysco",
+      website: "https://www.sysco.com",
+      apiEndpoint: "https://api.sysco.com/products",
+      price: 4.95,
+      availability: true
+    }
+  },
+  { 
+    vendor: "Sugar Sweet", 
+    productId: "SS-WS-95", 
+    product: "White Sugar 5lb", 
+    next: "2025-09-27", 
+    onHand: 75, 
+    proj: 50, 
+    rec: 55,
+    retailer: {
+      name: "US Foods",
+      website: "https://www.usfoods.com",
+      apiEndpoint: "https://api.usfoods.com/products",
+      price: 3.75,
+      availability: true
+    }
+  },
+  // Additional Frozen Items
+  { 
+    vendor: "Frozen Fresh", 
+    productId: "FF-BG-99", 
+    product: "Frozen Broccoli", 
+    next: "2025-09-26", 
+    onHand: 90, 
+    proj: 60, 
+    rec: 70,
+    retailer: {
+      name: "Performance Food Group",
+      website: "https://www.pfgc.com",
+      apiEndpoint: "https://api.pfgc.com/products",
+      price: 4.25,
+      availability: true
+    }
+  },
+  { 
+    vendor: "Ice Cream Co", 
+    productId: "IC-VN-103", 
+    product: "Vanilla Ice Cream", 
+    next: "2025-09-24", 
+    onHand: 60, 
+    proj: 40, 
+    rec: 45,
+    retailer: {
+      name: "Gordon Food Service",
+      website: "https://www.gfs.com",
+      apiEndpoint: "https://api.gfs.com/products",
+      price: 6.95,
+      availability: true
+    }
+  },
+  { 
+    vendor: "Frozen Meals", 
+    productId: "FM-LS-107", 
+    product: "Lasagna Frozen", 
+    next: "2025-09-25", 
+    onHand: 45, 
+    proj: 30, 
+    rec: 35,
+    retailer: {
+      name: "Sysco",
+      website: "https://www.sysco.com",
+      apiEndpoint: "https://api.sysco.com/products",
+      price: 8.75,
+      availability: true
+    }
+  },
+  // Additional Bakery Items
+  { 
+    vendor: "Bread Basket", 
+    productId: "BB-WW-111", 
+    product: "White Bread Loaf", 
+    next: "2025-09-22", 
+    onHand: 35, 
+    proj: 25, 
+    rec: 30,
+    retailer: {
+      name: "US Foods",
+      website: "https://www.usfoods.com",
+      apiEndpoint: "https://api.usfoods.com/products",
+      price: 2.45,
+      availability: true
+    }
+  },
+  { 
+    vendor: "Roll Master", 
+    productId: "RM-DR-115", 
+    product: "Dinner Rolls 12ct", 
+    next: "2025-09-23", 
+    onHand: 50, 
+    proj: 35, 
+    rec: 40,
+    retailer: {
+      name: "Performance Food Group",
+      website: "https://www.pfgc.com",
+      apiEndpoint: "https://api.pfgc.com/products",
+      price: 3.95,
+      availability: true
+    }
+  },
+  { 
+    vendor: "Croissant Co", 
+    productId: "CC-BC-119", 
+    product: "Butter Croissants", 
+    next: "2025-09-22", 
+    onHand: 30, 
+    proj: 20, 
+    rec: 25,
+    retailer: {
+      name: "Gordon Food Service",
+      website: "https://www.gfs.com",
+      apiEndpoint: "https://api.gfs.com/products",
+      price: 5.25,
+      availability: false
+    }
+  },
+  // Additional Beverages
+  { 
+    vendor: "Juice Bar", 
+    productId: "JB-OJ-123", 
+    product: "Orange Juice Fresh", 
+    next: "2025-09-23", 
+    onHand: 65, 
+    proj: 45, 
+    rec: 50,
+    retailer: {
+      name: "Sysco",
+      website: "https://www.sysco.com",
+      apiEndpoint: "https://api.sysco.com/products",
+      price: 4.95,
+      availability: true
+    }
+  },
+  { 
+    vendor: "Coffee Corner", 
+    productId: "CC-CF-127", 
+    product: "Ground Coffee Dark", 
+    next: "2025-09-26", 
+    onHand: 40, 
+    proj: 30, 
+    rec: 35,
+    retailer: {
+      name: "US Foods",
+      website: "https://www.usfoods.com",
+      apiEndpoint: "https://api.usfoods.com/products",
+      price: 7.95,
+      availability: true
+    }
+  },
+  { 
+    vendor: "Tea Time", 
+    productId: "TT-GT-131", 
+    product: "Green Tea Bags", 
+    next: "2025-09-28", 
+    onHand: 55, 
+    proj: 35, 
+    rec: 40,
+    retailer: {
+      name: "Performance Food Group",
+      website: "https://www.pfgc.com",
+      apiEndpoint: "https://api.pfgc.com/products",
+      price: 5.25,
+      availability: true
+    }
+  },
+  // Additional Snacks
+  { 
+    vendor: "Chip Central", 
+    productId: "CC-PC-135", 
+    product: "Potato Chips Original", 
+    next: "2025-09-25", 
+    onHand: 80, 
+    proj: 55, 
+    rec: 60,
+    retailer: {
+      name: "Gordon Food Service",
+      website: "https://www.gfs.com",
+      apiEndpoint: "https://api.gfs.com/products",
+      price: 3.95,
+      availability: true
+    }
+  },
+  { 
+    vendor: "Nuts About", 
+    productId: "NA-AL-139", 
+    product: "Almonds Raw", 
+    next: "2025-09-27", 
+    onHand: 35, 
+    proj: 25, 
+    rec: 30,
+    retailer: {
+      name: "Sysco",
+      website: "https://www.sysco.com",
+      apiEndpoint: "https://api.sysco.com/products",
+      price: 9.95,
+      availability: true
+    }
+  },
+  { 
+    vendor: "Crackers Co", 
+    productId: "CC-RC-143", 
+    product: "Ritz Crackers", 
+    next: "2025-09-24", 
+    onHand: 70, 
+    proj: 45, 
+    rec: 50,
+    retailer: {
+      name: "US Foods",
+      website: "https://www.usfoods.com",
+      apiEndpoint: "https://api.usfoods.com/products",
+      price: 4.25,
+      availability: true
+    }
+  },
+  // Additional Health & Beauty
+  { 
+    vendor: "Health First", 
+    productId: "HF-SH-147", 
+    product: "Shampoo 16oz", 
+    next: "2025-09-26", 
+    onHand: 45, 
+    proj: 30, 
+    rec: 35,
+    retailer: {
+      name: "Performance Food Group",
+      website: "https://www.pfgc.com",
+      apiEndpoint: "https://api.pfgc.com/products",
+      price: 6.95,
+      availability: true
+    }
+  },
+  { 
+    vendor: "Soap Works", 
+    productId: "SW-HS-151", 
+    product: "Hand Soap Refill", 
+    next: "2025-09-25", 
+    onHand: 60, 
+    proj: 40, 
+    rec: 45,
+    retailer: {
+      name: "Gordon Food Service",
+      website: "https://www.gfs.com",
+      apiEndpoint: "https://api.gfs.com/products",
+      price: 4.75,
+      availability: false
+    }
+  },
+  { 
+    vendor: "Clean Living", 
+    productId: "CL-LD-155", 
+    product: "Laundry Detergent", 
+    next: "2025-09-28", 
+    onHand: 25, 
+    proj: 20, 
+    rec: 22,
+    retailer: {
+      name: "Sysco",
+      website: "https://www.sysco.com",
+      apiEndpoint: "https://api.sysco.com/products",
+      price: 12.95,
+      availability: true
     }
   }
 ];
@@ -468,135 +1261,225 @@ const EvaluationScreen: React.FC = () => {
   ];
 
   return (
-    <div className="space-y-4 p-6">
-      {/* Filters + API Connectors */}
-      <div className="flex flex-wrap items-center gap-2">
-        <select value={store} onChange={(e)=>setStore(e.target.value)} className="border border-gray-200 rounded-xl px-3 py-2 text-sm bg-white/80 backdrop-blur-md text-gray-800 shadow-2xl">
-          {['All Stores','Encino','NYC','Dallas','Miami'].map(s=> <option key={s} className="text-gray-800">{s}</option>)}
-        </select>
-        <select value={category} onChange={(e)=>setCategory(e.target.value)} className="border border-gray-200 rounded-xl px-3 py-2 text-sm bg-white/80 backdrop-blur-md text-gray-800 shadow-2xl">
-          {['All','Produce','Meat','Bakery','Center Store'].map(s=> <option key={s} className="text-gray-800">{s}</option>)}
-        </select>
-        <select value={range} onChange={(e)=>setRange(e.target.value)} className="border border-gray-200 rounded-xl px-3 py-2 text-sm bg-white/80 backdrop-blur-md text-gray-800 shadow-2xl">
-          {['Last 7 days','Last 30 days','Quarter to date','Year to date'].map(s=> <option key={s} className="text-gray-800">{s}</option>)}
-        </select>
-        <div className="ml-auto flex items-center gap-2 text-xs text-gray-700">
-          <Wifi className="w-4 h-4"/>
-          External APIs
-          <Button variant="outline" onClick={load} title="Attempt to fetch external demo APIs" className="bg-white/80 backdrop-blur-md border-gray-200 text-gray-800 hover:bg-gray-50 shadow-2xl"><Download className="w-4 h-4"/> Pull now</Button>
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 p-6">
+      {/* Modern Header with Controls */}
+      <div className="mb-8">
+        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">Analytics Dashboard</h1>
+            <p className="text-gray-600">Real-time forecasting performance and demand insights</p>
+          </div>
+          
+          {/* Compact Filter Bar */}
+          <div className="flex flex-wrap items-center gap-3">
+            <div className="flex items-center gap-2 bg-white/80 backdrop-blur-sm rounded-xl px-4 py-2 border border-white/20 shadow-lg">
+              <Store className="w-4 h-4 text-gray-500" />
+              <select value={store} onChange={(e)=>setStore(e.target.value)} className="bg-transparent text-sm font-medium text-gray-700 border-none outline-none">
+                {['All Stores','Encino','NYC','Dallas','Miami'].map(s=> <option key={s} value={s}>{s}</option>)}
+              </select>
+            </div>
+            
+            <div className="flex items-center gap-2 bg-white/80 backdrop-blur-sm rounded-xl px-4 py-2 border border-white/20 shadow-lg">
+              <Package className="w-4 h-4 text-gray-500" />
+              <select value={category} onChange={(e)=>setCategory(e.target.value)} className="bg-transparent text-sm font-medium text-gray-700 border-none outline-none">
+                {['All','Produce','Meat','Bakery','Center Store'].map(s=> <option key={s} value={s}>{s}</option>)}
+              </select>
+            </div>
+            
+            <div className="flex items-center gap-2 bg-white/80 backdrop-blur-sm rounded-xl px-4 py-2 border border-white/20 shadow-lg">
+              <Settings className="w-4 h-4 text-gray-500" />
+              <select value={range} onChange={(e)=>setRange(e.target.value)} className="bg-transparent text-sm font-medium text-gray-700 border-none outline-none">
+                {['Last 7 days','Last 30 days','Quarter to date','Year to date'].map(s=> <option key={s} value={s}>{s}</option>)}
+              </select>
+            </div>
+            
+            <div className="flex items-center gap-2 bg-blue-500/10 backdrop-blur-sm rounded-xl px-4 py-2 border border-blue-200/30 shadow-lg">
+              <Wifi className="w-4 h-4 text-blue-600" />
+              <span className="text-sm font-medium text-blue-700">External APIs</span>
+              <Button 
+                variant="outline" 
+                onClick={load} 
+                className="bg-blue-500/10 border-blue-300 text-blue-700 hover:bg-blue-500/20 h-7 px-3 text-xs"
+              >
+                <Download className="w-3 h-3 mr-1"/> Pull
+              </Button>
+            </div>
+          </div>
         </div>
       </div>
 
-      {/* KPI Cards */}
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
-        <Card className="p-4 relative overflow-hidden before:absolute before:inset-0 before:bg-gradient-to-r before:from-transparent before:via-white/30 before:to-transparent before:translate-x-[-100%] hover:before:translate-x-[100%] before:transition-transform before:duration-1000 before:ease-out">
-          <div className="text-xs text-gray-600 font-medium">MAE</div>
-          <div className="text-2xl font-bold text-gray-800">{kpiValues.mae}</div>
-        </Card>
-        <Card className="p-4 relative overflow-hidden before:absolute before:inset-0 before:bg-gradient-to-r before:from-transparent before:via-white/30 before:to-transparent before:translate-x-[-100%] hover:before:translate-x-[100%] before:transition-transform before:duration-1000 before:ease-out">
-          <div className="text-xs text-gray-600 font-medium">RMSE</div>
-          <div className="text-2xl font-bold text-gray-800">{kpiValues.rmse}</div>
-        </Card>
-        <Card className="p-4 relative overflow-hidden before:absolute before:inset-0 before:bg-gradient-to-r before:from-transparent before:via-white/30 before:to-transparent before:translate-x-[-100%] hover:before:translate-x-[100%] before:transition-transform before:duration-1000 before:ease-out">
-          <div className="text-xs text-gray-600 font-medium">WMAPE</div>
-          <div className="text-2xl font-bold text-gray-800">{kpiValues.wmape}%</div>
-        </Card>
-        <Card className="p-4 relative overflow-hidden before:absolute before:inset-0 before:bg-gradient-to-r before:from-transparent before:via-white/30 before:to-transparent before:translate-x-[-100%] hover:before:translate-x-[100%] before:transition-transform before:duration-1000 before:ease-out">
-          <div className="text-xs text-gray-600 font-medium">Bias</div>
-          <div className="text-2xl font-bold text-gray-800">{kpiValues.bias}%</div>
-        </Card>
-        <Card className="p-4 relative overflow-hidden before:absolute before:inset-0 before:bg-gradient-to-r before:from-transparent before:via-white/30 before:to-transparent before:translate-x-[-100%] hover:before:translate-x-[100%] before:transition-transform before:duration-1000 before:ease-out">
-          <div className="text-xs text-gray-600 font-medium">Coverage</div>
-          <div className="text-2xl font-bold text-gray-800">{kpiValues.coverage}%</div>
-        </Card>
+      {/* Modern KPI Grid */}
+      <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-8">
+        <div className="bg-white/70 backdrop-blur-sm rounded-2xl p-6 border border-white/30 shadow-lg hover:shadow-xl transition-all duration-300 group">
+          <div className="flex items-center justify-between mb-3">
+            <div className="text-xs font-semibold text-gray-500 uppercase tracking-wide">MAE</div>
+            <div className="w-8 h-8 bg-red-100 rounded-lg flex items-center justify-center group-hover:bg-red-200 transition-colors">
+              <span className="text-red-600 text-lg">📊</span>
+            </div>
+          </div>
+          <div className="text-3xl font-bold text-gray-900 mb-1">{kpiValues.mae}</div>
+          <div className="text-xs text-gray-500">Mean Absolute Error</div>
+        </div>
+        
+        <div className="bg-white/70 backdrop-blur-sm rounded-2xl p-6 border border-white/30 shadow-lg hover:shadow-xl transition-all duration-300 group">
+          <div className="flex items-center justify-between mb-3">
+            <div className="text-xs font-semibold text-gray-500 uppercase tracking-wide">RMSE</div>
+            <div className="w-8 h-8 bg-orange-100 rounded-lg flex items-center justify-center group-hover:bg-orange-200 transition-colors">
+              <span className="text-orange-600 text-lg">📈</span>
+            </div>
+          </div>
+          <div className="text-3xl font-bold text-gray-900 mb-1">{kpiValues.rmse}</div>
+          <div className="text-xs text-gray-500">Root Mean Square Error</div>
+        </div>
+        
+        <div className="bg-white/70 backdrop-blur-sm rounded-2xl p-6 border border-white/30 shadow-lg hover:shadow-xl transition-all duration-300 group">
+          <div className="flex items-center justify-between mb-3">
+            <div className="text-xs font-semibold text-gray-500 uppercase tracking-wide">WMAPE</div>
+            <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center group-hover:bg-blue-200 transition-colors">
+              <span className="text-blue-600 text-lg">🎯</span>
+            </div>
+          </div>
+          <div className="text-3xl font-bold text-gray-900 mb-1">{kpiValues.wmape}%</div>
+          <div className="text-xs text-gray-500">Weighted MAPE</div>
+        </div>
+        
+        <div className="bg-white/70 backdrop-blur-sm rounded-2xl p-6 border border-white/30 shadow-lg hover:shadow-xl transition-all duration-300 group">
+          <div className="flex items-center justify-between mb-3">
+            <div className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Bias</div>
+            <div className="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center group-hover:bg-purple-200 transition-colors">
+              <span className="text-purple-600 text-lg">⚖️</span>
+            </div>
+          </div>
+          <div className="text-3xl font-bold text-gray-900 mb-1">{kpiValues.bias}%</div>
+          <div className="text-xs text-gray-500">Forecast Bias</div>
+        </div>
+        
+        <div className="bg-white/70 backdrop-blur-sm rounded-2xl p-6 border border-white/30 shadow-lg hover:shadow-xl transition-all duration-300 group">
+          <div className="flex items-center justify-between mb-3">
+            <div className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Coverage</div>
+            <div className="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center group-hover:bg-green-200 transition-colors">
+              <span className="text-green-600 text-lg">✅</span>
+            </div>
+          </div>
+          <div className="text-3xl font-bold text-gray-900 mb-1">{kpiValues.coverage}%</div>
+          <div className="text-xs text-gray-500">Prediction Coverage</div>
+        </div>
       </div>
 
-      <div className="grid lg:grid-cols-2 gap-4">
-        <Card className="p-4 relative overflow-hidden before:absolute before:inset-0 before:bg-gradient-to-r before:from-transparent before:via-white/30 before:to-transparent before:translate-x-[-100%] hover:before:translate-x-[100%] before:transition-transform before:duration-1000 before:ease-out">
-          <div className="flex items-center justify-between mb-2">
-            <div className="text-sm font-bold text-gray-800">Forecast vs. Actual Sales</div>
+      {/* Main Charts Section */}
+      <div className="grid lg:grid-cols-3 gap-6 mb-8">
+        {/* Sales Forecast Chart - Takes 2 columns */}
+        <div className="lg:col-span-2 bg-white/70 backdrop-blur-sm rounded-2xl p-6 border border-white/30 shadow-lg">
+          <div className="flex items-center justify-between mb-6">
+            <div>
+              <h3 className="text-lg font-bold text-gray-900">Forecast vs. Actual Sales</h3>
+              <p className="text-sm text-gray-600">Weekly performance comparison</p>
+            </div>
             {activeVariables.size > 0 && (
-              <div className="flex items-center gap-1 text-xs text-blue-600 font-medium">
+              <div className="flex items-center gap-2 px-3 py-1 bg-blue-100 rounded-full">
                 <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
-                Live Impact
+                <span className="text-xs font-medium text-blue-700">Live Impact Active</span>
               </div>
             )}
           </div>
-          <LineChartMini data={salesSeries} />
-        </Card>
-        <Card className="p-4 relative overflow-hidden before:absolute before:inset-0 before:bg-gradient-to-r before:from-transparent before:via-white/30 before:to-transparent before:translate-x-[-100%] hover:before:translate-x-[100%] before:transition-transform before:duration-1000 before:ease-out">
-          <div className="text-sm font-bold text-gray-800 mb-2">Accuracy by Department</div>
-          <BarChartMini data={accuracyByDept.map(d=>({k:d.k, v:d.v}))} />
-        </Card>
+          <div className="h-64">
+            <LineChartMini data={salesSeries} />
+          </div>
+        </div>
+
+        {/* Department Accuracy Chart */}
+        <div className="bg-white/70 backdrop-blur-sm rounded-2xl p-6 border border-white/30 shadow-lg">
+          <div className="mb-6">
+            <h3 className="text-lg font-bold text-gray-900">Department Accuracy</h3>
+            <p className="text-sm text-gray-600">Forecast precision by category</p>
+          </div>
+          <div className="h-64">
+            <BarChartMini data={accuracyByDept.map(d=>({k:d.k, v:d.v}))} />
+          </div>
+        </div>
       </div>
 
-      {/* Interactive Variables Section */}
-      <Card className="p-6 relative overflow-hidden before:absolute before:inset-0 before:bg-gradient-to-r before:from-transparent before:via-white/30 before:to-transparent before:translate-x-[-100%] hover:before:translate-x-[100%] before:transition-transform before:duration-1000 before:ease-out">
-        <div className="text-sm font-bold text-gray-800 mb-4">Demand Drivers & External Factors</div>
-        <div className="text-xs text-gray-600 mb-4">Tap the variables to include them in your forecasting model</div>
+      {/* Demand Drivers Section */}
+      <div className="bg-white/70 backdrop-blur-sm rounded-2xl p-8 border border-white/30 shadow-lg mb-6">
+        <div className="mb-6">
+          <h3 className="text-xl font-bold text-gray-900 mb-2">Demand Drivers & External Factors</h3>
+          <p className="text-gray-600">Toggle variables to see their impact on forecasting accuracy</p>
+        </div>
         
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-3">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
           {/* Weather */}
           <div 
             onClick={() => toggleVariable('weather')}
-            className={`p-4 rounded-xl border-2 cursor-pointer transition-all duration-200 ${
+            className={`p-6 rounded-xl border-2 cursor-pointer transition-all duration-300 group ${
               activeVariables.has('weather') 
-                ? 'border-blue-500 bg-blue-50/50 shadow-md' 
-                : 'border-gray-200 bg-white/30 hover:border-gray-300 hover:bg-white/40'
+                ? 'border-blue-500 bg-blue-50/80 shadow-lg scale-105' 
+                : 'border-gray-200 bg-white/50 hover:border-blue-300 hover:bg-blue-50/30 hover:shadow-md'
             }`}
           >
             <div className="text-center">
-              <div className="text-2xl mb-2">🌤️</div>
-              <div className="text-xs font-medium text-gray-700">Weather</div>
-              <div className="text-xs text-gray-500 mt-1">Temperature, rain, storms</div>
+              <div className="text-4xl mb-3 group-hover:scale-110 transition-transform">🌤️</div>
+              <div className="font-semibold text-gray-800 mb-1">Weather</div>
+              <div className="text-sm text-gray-600">Temperature, rain, storms</div>
+              <div className="mt-2 text-xs text-blue-600 font-medium">
+                {activeVariables.has('weather') ? '✓ Active' : 'Click to activate'}
+              </div>
             </div>
           </div>
 
           {/* Promotions */}
           <div 
             onClick={() => toggleVariable('promotions')}
-            className={`p-4 rounded-xl border-2 cursor-pointer transition-all duration-200 ${
+            className={`p-6 rounded-xl border-2 cursor-pointer transition-all duration-300 group ${
               activeVariables.has('promotions') 
-                ? 'border-green-500 bg-green-50/50 shadow-md' 
-                : 'border-gray-200 bg-white/30 hover:border-gray-300 hover:bg-white/40'
+                ? 'border-green-500 bg-green-50/80 shadow-lg scale-105' 
+                : 'border-gray-200 bg-white/50 hover:border-green-300 hover:bg-green-50/30 hover:shadow-md'
             }`}
           >
             <div className="text-center">
-              <div className="text-2xl mb-2">💰</div>
-              <div className="text-xs font-medium text-gray-700">Promotions</div>
-              <div className="text-xs text-gray-500 mt-1">Sales, discounts, BOGO</div>
+              <div className="text-4xl mb-3 group-hover:scale-110 transition-transform">💰</div>
+              <div className="font-semibold text-gray-800 mb-1">Promotions</div>
+              <div className="text-sm text-gray-600">Sales, discounts, BOGO</div>
+              <div className="mt-2 text-xs text-green-600 font-medium">
+                {activeVariables.has('promotions') ? '✓ Active' : 'Click to activate'}
+              </div>
             </div>
           </div>
 
           {/* Events */}
           <div 
             onClick={() => toggleVariable('events')}
-            className={`p-4 rounded-xl border-2 cursor-pointer transition-all duration-200 ${
+            className={`p-6 rounded-xl border-2 cursor-pointer transition-all duration-300 group ${
               activeVariables.has('events') 
-                ? 'border-purple-500 bg-purple-50/50 shadow-md' 
-                : 'border-gray-200 bg-white/30 hover:border-gray-300 hover:bg-white/40'
+                ? 'border-purple-500 bg-purple-50/80 shadow-lg scale-105' 
+                : 'border-gray-200 bg-white/50 hover:border-purple-300 hover:bg-purple-50/30 hover:shadow-md'
             }`}
           >
             <div className="text-center">
-              <div className="text-2xl mb-2">🎉</div>
-              <div className="text-xs font-medium text-gray-700">Events</div>
-              <div className="text-xs text-gray-500 mt-1">Holidays, festivals, sports</div>
+              <div className="text-4xl mb-3 group-hover:scale-110 transition-transform">🎉</div>
+              <div className="font-semibold text-gray-800 mb-1">Events</div>
+              <div className="text-sm text-gray-600">Holidays, festivals, sports</div>
+              <div className="mt-2 text-xs text-purple-600 font-medium">
+                {activeVariables.has('events') ? '✓ Active' : 'Click to activate'}
+              </div>
             </div>
           </div>
         </div>
 
         {/* Active Variables Summary */}
         {activeVariables.size > 0 && (
-          <div className="mt-4 space-y-3">
-            <div className="p-3 bg-gray-50/50 rounded-xl border border-gray-200/50">
-              <div className="text-xs font-medium text-gray-700 mb-2">
-                Active Variables ({activeVariables.size}):
+          <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-4 border border-blue-200/50">
+            <div className="flex items-center justify-between">
+              <div>
+                <div className="font-semibold text-gray-800 mb-1">
+                  Active Variables ({activeVariables.size})
+                </div>
+                <div className="text-sm text-gray-600">These factors are currently influencing your forecasts</div>
               </div>
               <div className="flex flex-wrap gap-2">
                 {Array.from(activeVariables).map(variable => (
                   <span 
                     key={variable}
-                    className="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full font-medium"
+                    className="px-3 py-1 bg-blue-500 text-white text-sm rounded-full font-medium shadow-sm"
                   >
                     {variable.charAt(0).toUpperCase() + variable.slice(1)}
                   </span>
@@ -605,14 +1488,29 @@ const EvaluationScreen: React.FC = () => {
             </div>
           </div>
         )}
-      </Card>
+      </div>
 
-      {loading && <div className="text-xs text-gray-500">Fetching external data…</div>}
+      {/* External Data Section */}
+      {loading && (
+        <div className="bg-white/70 backdrop-blur-sm rounded-2xl p-6 border border-white/30 shadow-lg">
+          <div className="flex items-center gap-3">
+            <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
+            <span className="text-gray-700 font-medium">Fetching external data...</span>
+          </div>
+        </div>
+      )}
+      
       {(data.pos || data.weather || data.trends) && (
-        <Card className="p-4 relative overflow-hidden before:absolute before:inset-0 before:bg-gradient-to-r before:from-transparent before:via-white/30 before:to-transparent before:translate-x-[-100%] hover:before:translate-x-[100%] before:transition-transform before:duration-1000 before:ease-out">
-          <div className="text-xs text-gray-600 font-bold mb-2">External Data (demo)</div>
-          <pre className="text-[11px] max-h-48 overflow-auto bg-white/10 backdrop-blur-md p-2 rounded-xl border border-gray-200/50 text-gray-700">{JSON.stringify(data, null, 2)}</pre>
-        </Card>
+        <div className="bg-white/70 backdrop-blur-sm rounded-2xl p-6 border border-white/30 shadow-lg">
+          <div className="flex items-center gap-2 mb-4">
+            <Wifi className="w-5 h-5 text-blue-600" />
+            <h3 className="text-lg font-bold text-gray-900">External Data Sources</h3>
+            <span className="px-2 py-1 bg-green-100 text-green-700 text-xs rounded-full font-medium">Connected</span>
+          </div>
+          <div className="bg-gray-50/50 rounded-xl p-4 border border-gray-200/50">
+            <pre className="text-sm max-h-48 overflow-auto text-gray-700 whitespace-pre-wrap">{JSON.stringify(data, null, 2)}</pre>
+          </div>
+        </div>
       )}
     </div>
   );
@@ -626,6 +1524,14 @@ const OrdersScreen: React.FC = () => {
   const [orders] = useState<OrderRow[]>(SAMPLE_ORDERS);
   const [selectedRetailers, setSelectedRetailers] = useState<Set<string>>(new Set());
   const [orderStatus, setOrderStatus] = useState<{[key: string]: 'pending' | 'processing' | 'completed' | 'failed'}>({});
+  const [showAllProducts, setShowAllProducts] = useState(false);
+  const [selectedProducts, setSelectedProducts] = useState<Set<string>>(new Set());
+  const [exportStatus, setExportStatus] = useState<'idle' | 'exporting' | 'exported'>('idle');
+  const [submitStatus, setSubmitStatus] = useState<'idle' | 'submitting' | 'submitted'>('idle');
+  const [productDetails, setProductDetails] = useState<{[key: string]: boolean}>({});
+  
+  // Show limited products initially (first 4), all products when showAllProducts is true
+  const displayedOrders = showAllProducts ? orders : orders.slice(0, 4);
   
   const handleRetailerOrder = async (productId: string, retailer: OrderRow['retailer']) => {
     if (!retailer) return;
@@ -656,6 +1562,91 @@ const OrdersScreen: React.FC = () => {
       await handleRetailerOrder(order.productId, order.retailer);
     }
   };
+
+  const handleExport = async () => {
+    setExportStatus('exporting');
+    
+    try {
+      // Simulate export process
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      
+      // Create export data
+      const exportData = {
+        timestamp: new Date().toISOString(),
+        totalItems: orders.length,
+        totalRecommended: orders.reduce((sum, o) => sum + o.rec, 0),
+        avgProjection: Math.round(orders.reduce((sum, o) => sum + o.proj, 0) / orders.length),
+        orders: orders.map(order => ({
+          ...order,
+          status: orderStatus[order.productId] || 'pending'
+        })),
+        selectedRetailers: Array.from(selectedRetailers)
+      };
+      
+      // Download as JSON
+      const dataStr = JSON.stringify(exportData, null, 2);
+      const dataBlob = new Blob([dataStr], {type: 'application/json'});
+      const url = URL.createObjectURL(dataBlob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `dc-buyer-orders-${new Date().toISOString().split('T')[0]}.json`;
+      link.click();
+      URL.revokeObjectURL(url);
+      
+      setExportStatus('exported');
+      setTimeout(() => setExportStatus('idle'), 2000);
+      
+    } catch (error) {
+      console.error('Export failed:', error);
+      setExportStatus('idle');
+    }
+  };
+
+  const handleSubmitOrders = async () => {
+    setSubmitStatus('submitting');
+    
+    try {
+      // Simulate order submission
+      await new Promise(resolve => setTimeout(resolve, 3000));
+      
+      const completedOrders = orders.filter(order => orderStatus[order.productId] === 'completed');
+      console.log(`Submitted ${completedOrders.length} orders to DC`);
+      
+      setSubmitStatus('submitted');
+      setTimeout(() => setSubmitStatus('idle'), 2000);
+      
+    } catch (error) {
+      console.error('Order submission failed:', error);
+      setSubmitStatus('idle');
+    }
+  };
+
+  const handleProductSelect = (productId: string) => {
+    setSelectedProducts(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(productId)) {
+        newSet.delete(productId);
+      } else {
+        newSet.add(productId);
+      }
+      return newSet;
+    });
+  };
+
+  const handleSelectAll = () => {
+    if (selectedProducts.size === displayedOrders.length) {
+      setSelectedProducts(new Set());
+    } else {
+      setSelectedProducts(new Set(displayedOrders.map(order => order.productId)));
+    }
+  };
+
+  const handleViewDetails = (productId: string) => {
+    setProductDetails(prev => ({
+      ...prev,
+      [productId]: !prev[productId]
+    }));
+  };
   
   return (
     <div className="space-y-4 p-6">
@@ -665,15 +1656,75 @@ const OrdersScreen: React.FC = () => {
           <p className="text-sm text-gray-600">Smart recommendations for next week's orders</p>
         </div>
         <div className="flex items-center gap-2">
-          <Button variant="outline"><Download className="h-4 w-4"/> Export</Button>
+          <Button 
+            variant="outline"
+            onClick={handleExport}
+            disabled={exportStatus === 'exporting'}
+          >
+            {exportStatus === 'exporting' ? (
+              <>
+                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600 mr-2"></div>
+                Exporting...
+              </>
+            ) : exportStatus === 'exported' ? (
+              <>
+                <CheckCircle className="h-4 w-4 mr-2 text-green-600"/>
+                Exported!
+              </>
+            ) : (
+              <>
+                <Download className="h-4 w-4 mr-2"/>
+                Export
+              </>
+            )}
+          </Button>
           <Button 
             onClick={handleBulkOrder}
             disabled={!orders.some(o => o.retailer?.availability)}
           >
             <ShoppingCart className="h-4 w-4 mr-2"/> Bulk Order from Retailers
           </Button>
-          <Button><Upload className="h-4 w-4"/> Submit Orders</Button>
+          <Button 
+            onClick={handleSubmitOrders}
+            disabled={submitStatus === 'submitting' || !orders.some(o => orderStatus[o.productId] === 'completed')}
+          >
+            {submitStatus === 'submitting' ? (
+              <>
+                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                Submitting...
+              </>
+            ) : submitStatus === 'submitted' ? (
+              <>
+                <CheckCircle className="h-4 w-4 mr-2"/>
+                Submitted!
+              </>
+            ) : (
+              <>
+                <Upload className="h-4 w-4 mr-2"/>
+                Submit Orders
+              </>
+            )}
+          </Button>
         </div>
+      </div>
+
+      {/* Show All Products Button */}
+      <div className="flex items-center justify-between bg-blue-50 border border-blue-200 rounded-lg p-4">
+        <div>
+          <h3 className="font-semibold text-blue-800">
+            {showAllProducts ? `Showing all ${orders.length} products` : `Showing ${displayedOrders.length} of ${orders.length} products`}
+          </h3>
+          <p className="text-sm text-blue-600">
+            {showAllProducts ? 'Click to show only priority items' : 'Click to view complete inventory'}
+          </p>
+        </div>
+        <Button 
+          variant="outline"
+          onClick={() => setShowAllProducts(!showAllProducts)}
+          className="border-blue-300 text-blue-700 hover:bg-blue-100"
+        >
+          {showAllProducts ? 'Show Priority Items' : 'Show All Products'}
+        </Button>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
@@ -692,6 +1743,20 @@ const OrdersScreen: React.FC = () => {
       </div>
 
       <Card className="p-4">
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-lg font-semibold text-gray-800">Product Orders</h3>
+          <div className="flex items-center gap-2">
+            <input
+              type="checkbox"
+              checked={selectedProducts.size === displayedOrders.length && displayedOrders.length > 0}
+              onChange={handleSelectAll}
+              className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+            />
+            <span className="text-sm text-gray-600">
+              {selectedProducts.size > 0 ? `${selectedProducts.size} selected` : 'Select all'}
+            </span>
+          </div>
+        </div>
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
@@ -707,106 +1772,157 @@ const OrdersScreen: React.FC = () => {
               </tr>
             </thead>
             <tbody>
-              {orders.map((order, idx) => {
+              {displayedOrders.map((order, idx) => {
                 const status = orderStatus[order.productId] || 'pending';
+                const isSelected = selectedProducts.has(order.productId);
+                const showDetails = productDetails[order.productId];
                 return (
-                  <tr key={idx} className="border-b border-gray-100 hover:bg-gray-50/50 transition-colors">
-                    <td className="py-3 px-2">
-                      <div className="flex items-center gap-2">
-                        <div className="w-2 h-2 bg-emerald-500 rounded-full"></div>
-                        <span className="font-medium text-gray-800">{order.vendor}</span>
-                      </div>
-                    </td>
-                    <td className="py-3 px-2">
-                      <div>
-                        <div className="font-medium text-gray-800">{order.product}</div>
-                        <div className="text-xs text-gray-500">{order.productId}</div>
-                      </div>
-                    </td>
-                    <td className="py-3 px-2 text-right text-gray-600">{order.next}</td>
-                    <td className="py-3 px-2 text-right">
-                      <span className="font-mono text-gray-800">{order.onHand}</span>
-                    </td>
-                    <td className="py-3 px-2 text-right">
-                      <span className="font-mono text-blue-600">{order.proj}</span>
-                    </td>
-                    <td className="py-3 px-2 text-right">
-                      <span className="font-mono text-emerald-600 font-bold">{order.rec}</span>
-                    </td>
-                    <td className="py-3 px-2">
-                      {order.retailer ? (
-                        <div className="space-y-1">
-                          <div className="flex items-center gap-2">
-                            <div className={`w-2 h-2 rounded-full ${order.retailer.availability ? 'bg-green-500' : 'bg-red-500'}`}></div>
-                            <span className="font-medium text-gray-800">{order.retailer.name}</span>
-                          </div>
-                          <div className="text-xs text-gray-600">${order.retailer.price.toFixed(2)}/unit</div>
-                          <a 
-                            href={order.retailer.website} 
-                            target="_blank" 
-                            rel="noopener noreferrer"
-                            className="text-xs text-blue-600 hover:text-blue-800 flex items-center gap-1"
-                          >
-                            <ExternalLink className="h-3 w-3"/>
-                            Visit Site
-                          </a>
+                  <React.Fragment key={idx}>
+                    <tr className={`border-b border-gray-100 hover:bg-gray-50/50 transition-colors ${isSelected ? 'bg-blue-50' : ''}`}>
+                      <td className="py-3 px-2">
+                        <div className="flex items-center gap-2">
+                          <input
+                            type="checkbox"
+                            checked={isSelected}
+                            onChange={() => handleProductSelect(order.productId)}
+                            className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                          />
+                          <div className="w-2 h-2 bg-emerald-500 rounded-full"></div>
+                          <span className="font-medium text-gray-800">{order.vendor}</span>
                         </div>
-                      ) : (
-                        <span className="text-xs text-gray-500">No retailer</span>
-                      )}
-                    </td>
-                    <td className="py-3 px-2 text-center">
-                      <div className="flex items-center justify-center gap-2">
-                        {order.retailer && order.retailer.availability ? (
+                      </td>
+                      <td className="py-3 px-2">
+                        <div>
+                          <div className="font-medium text-gray-800">{order.product}</div>
+                          <div className="text-xs text-gray-500">{order.productId}</div>
+                        </div>
+                      </td>
+                      <td className="py-3 px-2 text-right text-gray-600">{order.next}</td>
+                      <td className="py-3 px-2 text-right">
+                        <span className="font-mono text-gray-800">{order.onHand}</span>
+                      </td>
+                      <td className="py-3 px-2 text-right">
+                        <span className="font-mono text-blue-600">{order.proj}</span>
+                      </td>
+                      <td className="py-3 px-2 text-right">
+                        <span className="font-mono text-emerald-600 font-bold">{order.rec}</span>
+                      </td>
+                      <td className="py-3 px-2">
+                        {order.retailer ? (
+                          <div className="space-y-1">
+                            <div className="flex items-center gap-2">
+                              <div className={`w-2 h-2 rounded-full ${order.retailer.availability ? 'bg-green-500' : 'bg-red-500'}`}></div>
+                              <span className="font-medium text-gray-800">{order.retailer.name}</span>
+                            </div>
+                            <div className="text-xs text-gray-600">${order.retailer.price.toFixed(2)}/unit</div>
+                            <a 
+                              href={order.retailer.website} 
+                              target="_blank" 
+                              rel="noopener noreferrer"
+                              className="text-xs text-blue-600 hover:text-blue-800 flex items-center gap-1"
+                            >
+                              <ExternalLink className="h-3 w-3"/>
+                              Visit Site
+                            </a>
+                          </div>
+                        ) : (
+                          <span className="text-xs text-gray-500">No retailer</span>
+                        )}
+                      </td>
+                      <td className="py-3 px-2 text-center">
+                        <div className="flex items-center justify-center gap-2">
+                          {order.retailer && order.retailer.availability ? (
+                            <Button 
+                              variant="ghost" 
+                              className="p-2 h-8 flex items-center gap-1 text-xs"
+                              onClick={() => handleRetailerOrder(order.productId, order.retailer)}
+                              disabled={status === 'processing'}
+                              title={status === 'processing' ? 'Processing order...' : 
+                                     status === 'completed' ? 'Order completed successfully' :
+                                     status === 'failed' ? 'Order failed - click to retry' :
+                                     'Order from retailer'}
+                            >
+                              {status === 'processing' ? (
+                                <>
+                                  <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-blue-600"></div>
+                                  <span className="text-blue-600">Processing</span>
+                                </>
+                              ) : status === 'completed' ? (
+                                <>
+                                  <CheckCircle className="h-3 w-3 text-green-600"/>
+                                  <span className="text-green-600">Ordered</span>
+                                </>
+                              ) : status === 'failed' ? (
+                                <>
+                                  <AlertTriangle className="h-3 w-3 text-red-600"/>
+                                  <span className="text-red-600">Failed</span>
+                                </>
+                              ) : (
+                                <>
+                                  <ShoppingCart className="h-3 w-3 text-blue-600"/>
+                                  <span className="text-blue-600">Order</span>
+                                </>
+                              )}
+                            </Button>
+                          ) : (
+                            <Button variant="ghost" className="p-2 h-8 flex items-center gap-1 text-xs" disabled title="Not available from retailer">
+                              <AlertTriangle className="h-3 w-3 text-gray-400"/>
+                              <span className="text-gray-400">Unavailable</span>
+                            </Button>
+                          )}
                           <Button 
                             variant="ghost" 
                             className="p-2 h-8 flex items-center gap-1 text-xs"
-                            onClick={() => handleRetailerOrder(order.productId, order.retailer)}
-                            disabled={status === 'processing'}
-                            title={status === 'processing' ? 'Processing order...' : 
-                                   status === 'completed' ? 'Order completed successfully' :
-                                   status === 'failed' ? 'Order failed - click to retry' :
-                                   'Order from retailer'}
+                            onClick={() => handleViewDetails(order.productId)}
+                            title={showDetails ? "Hide product details" : "View product details"}
                           >
-                            {status === 'processing' ? (
-                              <>
-                                <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-blue-600"></div>
-                                <span className="text-blue-600">Processing</span>
-                              </>
-                            ) : status === 'completed' ? (
-                              <>
-                                <CheckCircle className="h-3 w-3 text-green-600"/>
-                                <span className="text-green-600">Ordered</span>
-                              </>
-                            ) : status === 'failed' ? (
-                              <>
-                                <AlertTriangle className="h-3 w-3 text-red-600"/>
-                                <span className="text-red-600">Failed</span>
-                              </>
-                            ) : (
-                              <>
-                                <ShoppingCart className="h-3 w-3 text-blue-600"/>
-                                <span className="text-blue-600">Order</span>
-                              </>
-                            )}
+                            <Eye className="h-3 w-3 text-gray-600"/>
+                            <span className="text-gray-600">{showDetails ? 'Hide' : 'Details'}</span>
                           </Button>
-                        ) : (
-                          <Button variant="ghost" className="p-2 h-8 flex items-center gap-1 text-xs" disabled title="Not available from retailer">
-                            <AlertTriangle className="h-3 w-3 text-gray-400"/>
-                            <span className="text-gray-400">Unavailable</span>
-                          </Button>
-                        )}
-                        <Button 
-                          variant="ghost" 
-                          className="p-2 h-8 flex items-center gap-1 text-xs"
-                          title="View product details"
-                        >
-                          <Eye className="h-3 w-3 text-gray-600"/>
-                          <span className="text-gray-600">Details</span>
-                        </Button>
-                      </div>
-                    </td>
-                  </tr>
+                        </div>
+                      </td>
+                    </tr>
+                    {showDetails && (
+                      <tr className="bg-gray-50 border-b border-gray-200">
+                        <td colSpan={8} className="py-4 px-4">
+                          <div className="bg-white rounded-lg p-4 shadow-sm">
+                            <h4 className="font-semibold text-gray-800 mb-3">Product Details: {order.product}</h4>
+                            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                              <div>
+                                <div className="text-sm font-medium text-gray-600">Vendor Info</div>
+                                <div className="text-sm text-gray-800">{order.vendor}</div>
+                                <div className="text-xs text-gray-500">{order.productId}</div>
+                              </div>
+                              <div>
+                                <div className="text-sm font-medium text-gray-600">Inventory Status</div>
+                                <div className="text-sm text-gray-800">On Hand: {order.onHand}</div>
+                                <div className="text-sm text-blue-600">Projected: {order.proj}</div>
+                                <div className="text-sm text-emerald-600">Recommended: {order.rec}</div>
+                              </div>
+                              <div>
+                                <div className="text-sm font-medium text-gray-600">Next Delivery</div>
+                                <div className="text-sm text-gray-800">{new Date(order.next).toLocaleDateString()}</div>
+                              </div>
+                              <div>
+                                <div className="text-sm font-medium text-gray-600">Retailer Info</div>
+                                {order.retailer ? (
+                                  <>
+                                    <div className="text-sm text-gray-800">{order.retailer.name}</div>
+                                    <div className="text-sm text-green-600">${order.retailer.price.toFixed(2)}/unit</div>
+                                    <div className={`text-xs ${order.retailer.availability ? 'text-green-600' : 'text-red-600'}`}>
+                                      {order.retailer.availability ? 'Available' : 'Unavailable'}
+                                    </div>
+                                  </>
+                                ) : (
+                                  <div className="text-sm text-gray-500">No retailer available</div>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                        </td>
+                      </tr>
+                    )}
+                  </React.Fragment>
                 );
               })}
             </tbody>

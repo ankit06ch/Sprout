@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { voiceAssistantService } from '../services/voiceAssistantService';
 
 interface SproutVoiceAgentProps {
   isOpen: boolean;
@@ -8,21 +9,103 @@ interface SproutVoiceAgentProps {
 export default function SproutVoiceAgent({ isOpen, onClose }: SproutVoiceAgentProps) {
   const [isConnected, setIsConnected] = useState(false);
   const [isConnecting, setIsConnecting] = useState(false);
+  const [isListening, setIsListening] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [status, setStatus] = useState<string>('Ready to connect');
+  const [messages, setMessages] = useState<Array<{type: 'user' | 'assistant', content: string, timestamp: Date}>>([]);
+  const [currentMessage, setCurrentMessage] = useState<string>('');
 
-  const handleConnect = () => {
+  useEffect(() => {
+    // Set up voice assistant service callbacks
+    voiceAssistantService.setCallbacks({
+      onMessage: (message: string) => {
+        setMessages(prev => [...prev, { type: 'assistant', content: message, timestamp: new Date() }]);
+        setCurrentMessage('');
+      },
+      onError: (error: string) => {
+        setError(error);
+        setIsConnecting(false);
+      },
+      onStatus: (status: string) => {
+        setStatus(status);
+      }
+    });
+
+    // Check if voice assistant is available when component mounts
+    if (isOpen) {
+      checkAvailability();
+    }
+
+    return () => {
+      // Clean up on unmount
+      voiceAssistantService.disconnect();
+    };
+  }, [isOpen]);
+
+  const checkAvailability = async () => {
+    const available = await voiceAssistantService.checkAvailability();
+    if (!available) {
+      setError('Voice assistant service is not available. Please ensure the backend server is running.');
+    }
+  };
+
+  const handleConnect = async () => {
     setIsConnecting(true);
     setError(null);
-    // Simulate connection for demo purposes
-    setTimeout(() => {
+    setStatus('Connecting...');
+    
+    try {
+      const success = await voiceAssistantService.initializeSession();
+      if (success) {
+        setIsConnected(true);
+        setIsConnecting(false);
+        setStatus('Connected - Ready to help with Sprout features');
+      } else {
+        setError('Failed to connect to voice assistant');
+        setIsConnecting(false);
+      }
+    } catch (error) {
+      setError('Connection failed. Please try again.');
       setIsConnecting(false);
-      setIsConnected(true);
-    }, 2000);
+    }
   };
 
   const handleDisconnect = () => {
+    voiceAssistantService.disconnect();
     setIsConnected(false);
     setIsConnecting(false);
+    setIsListening(false);
+    setMessages([]);
+    setCurrentMessage('');
+    setStatus('Disconnected');
+  };
+
+  const handleStartListening = () => {
+    const success = voiceAssistantService.startListening();
+    if (success) {
+      setIsListening(true);
+      setStatus('Listening... Speak now');
+    }
+  };
+
+  const handleStopListening = () => {
+    const success = voiceAssistantService.stopListening();
+    if (success) {
+      setIsListening(false);
+      setStatus('Processing your request...');
+    }
+  };
+
+  const handleSampleQuestion = async (question: string) => {
+    if (!isConnected) return;
+    
+    setMessages(prev => [...prev, { type: 'user', content: question, timestamp: new Date() }]);
+    setStatus('Processing...');
+    
+    const success = await voiceAssistantService.sendVoicePrompt(question);
+    if (!success) {
+      setError('Failed to send question to voice assistant');
+    }
   };
 
   if (!isOpen) return null;
@@ -92,26 +175,76 @@ export default function SproutVoiceAgent({ isOpen, onClose }: SproutVoiceAgentPr
                   
                   {/* Status */}
                   <h3 className="text-xl font-semibold text-gray-800 mb-2">Connected to Sprout AI</h3>
-                  <p className="text-gray-600 text-center mb-6 max-w-md">
-                    Ask me about Sprout's features like demand forecasting, inventory management, 
-                    waste reduction, and analytics capabilities.
+                  <p className="text-gray-600 text-center mb-4 max-w-md">
+                    {status}
                   </p>
+                  
+                  {/* Voice Controls */}
+                  <div className="flex items-center space-x-4 mb-6">
+                    <button
+                      onClick={isListening ? handleStopListening : handleStartListening}
+                      className={`px-6 py-3 rounded-xl flex items-center space-x-2 transition-colors ${
+                        isListening 
+                          ? 'bg-red-600 hover:bg-red-700 text-white' 
+                          : 'bg-green-600 hover:bg-green-700 text-white'
+                      }`}
+                    >
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
+                      </svg>
+                      <span>{isListening ? 'Stop Listening' : 'Start Voice'}</span>
+                    </button>
+                  </div>
+
+                  {/* Messages Display */}
+                  {messages.length > 0 && (
+                    <div className="w-full max-w-2xl mb-6 max-h-48 overflow-y-auto bg-white/50 backdrop-blur-sm rounded-xl p-4">
+                      {messages.map((msg, index) => (
+                        <div key={index} className={`mb-3 ${msg.type === 'user' ? 'text-right' : 'text-left'}`}>
+                          <div className={`inline-block p-3 rounded-lg max-w-xs ${
+                            msg.type === 'user' 
+                              ? 'bg-blue-500 text-white' 
+                              : 'bg-gray-100 text-gray-800'
+                          }`}>
+                            <p className="text-sm">{msg.content}</p>
+                            <p className={`text-xs mt-1 ${
+                              msg.type === 'user' ? 'text-blue-100' : 'text-gray-500'
+                            }`}>
+                              {msg.timestamp.toLocaleTimeString()}
+                            </p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                   
                   {/* Sample Questions */}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3 w-full max-w-2xl">
-                    <button className="bg-white/70 backdrop-blur-sm rounded-xl p-3 text-left hover:bg-white/90 transition-colors">
+                    <button 
+                      onClick={() => handleSampleQuestion("What is Sprout and how does it help grocery stores?")}
+                      className="bg-white/70 backdrop-blur-sm rounded-xl p-3 text-left hover:bg-white/90 transition-colors"
+                    >
                       <div className="font-medium text-gray-800">What is Sprout?</div>
                       <div className="text-sm text-gray-600">Learn about our AI platform</div>
                     </button>
-                    <button className="bg-white/70 backdrop-blur-sm rounded-xl p-3 text-left hover:bg-white/90 transition-colors">
+                    <button 
+                      onClick={() => handleSampleQuestion("How does demand forecasting work in Sprout?")}
+                      className="bg-white/70 backdrop-blur-sm rounded-xl p-3 text-left hover:bg-white/90 transition-colors"
+                    >
                       <div className="font-medium text-gray-800">How does forecasting work?</div>
                       <div className="text-sm text-gray-600">Understand our AI predictions</div>
                     </button>
-                    <button className="bg-white/70 backdrop-blur-sm rounded-xl p-3 text-left hover:bg-white/90 transition-colors">
+                    <button 
+                      onClick={() => handleSampleQuestion("What waste reduction features does Sprout offer?")}
+                      className="bg-white/70 backdrop-blur-sm rounded-xl p-3 text-left hover:bg-white/90 transition-colors"
+                    >
                       <div className="font-medium text-gray-800">Waste reduction features</div>
                       <div className="text-sm text-gray-600">Minimize food waste</div>
                     </button>
-                    <button className="bg-white/70 backdrop-blur-sm rounded-xl p-3 text-left hover:bg-white/90 transition-colors">
+                    <button 
+                      onClick={() => handleSampleQuestion("Tell me about Sprout's analytics dashboard capabilities")}
+                      className="bg-white/70 backdrop-blur-sm rounded-xl p-3 text-left hover:bg-white/90 transition-colors"
+                    >
                       <div className="font-medium text-gray-800">Analytics dashboard</div>
                       <div className="text-sm text-gray-600">Track performance metrics</div>
                     </button>
@@ -122,11 +255,18 @@ export default function SproutVoiceAgent({ isOpen, onClose }: SproutVoiceAgentPr
               {/* Controls */}
               <div className="border-t border-gray-200 p-4">
                 <div className="flex items-center justify-center space-x-4">
-                  <button className="bg-gray-600 text-white px-6 py-2 rounded-xl hover:bg-gray-700 transition-colors flex items-center space-x-2">
+                  <button 
+                    onClick={isListening ? handleStopListening : handleStartListening}
+                    className={`px-6 py-2 rounded-xl transition-colors flex items-center space-x-2 ${
+                      isListening 
+                        ? 'bg-red-600 hover:bg-red-700 text-white' 
+                        : 'bg-green-600 hover:bg-green-700 text-white'
+                    }`}
+                  >
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
                     </svg>
-                    <span>Mute</span>
+                    <span>{isListening ? 'Stop' : 'Voice'}</span>
                   </button>
                   <button
                     onClick={handleDisconnect}
@@ -137,6 +277,9 @@ export default function SproutVoiceAgent({ isOpen, onClose }: SproutVoiceAgentPr
                     </svg>
                     <span>End Call</span>
                   </button>
+                </div>
+                <div className="text-center mt-2">
+                  <p className="text-sm text-gray-500">{status}</p>
                 </div>
               </div>
             </div>

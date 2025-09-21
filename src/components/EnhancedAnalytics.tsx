@@ -427,132 +427,200 @@ const EnhancedAnalytics: React.FC = () => {
   ];
 
   return (
-    <div className="space-y-6 p-6 bg-gradient-to-br from-gray-50 to-white min-h-screen">
-      {/* 3D Store Visualization */}
-      <ThreeDStore />
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 p-6">
+      {/* Modern Header */}
+      <div className="mb-8">
+        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
+          <div>
+            <h1 className="text-4xl font-bold text-gray-900 mb-2">Analytics Dashboard</h1>
+            <p className="text-gray-600 text-lg">Real-time forecasting performance and demand insights</p>
+          </div>
+          <div className="flex items-center gap-3">
+            <div className="bg-white/80 backdrop-blur-sm rounded-xl px-4 py-2 border border-white/20 shadow-lg">
+              <span className="text-sm font-medium text-gray-700">Last updated: {new Date().toLocaleTimeString()}</span>
+            </div>
+          </div>
+        </div>
+      </div>
 
-      {/* Key Metrics */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      {/* 3D Store Visualization - Enhanced */}
+      <div className="mb-8">
+        <div className="bg-white/70 backdrop-blur-sm rounded-2xl p-6 border border-white/30 shadow-lg">
+          <h3 className="text-xl font-bold text-gray-900 mb-4">3D Store Visualization</h3>
+          <ThreeDStore />
+        </div>
+      </div>
+
+      {/* Modern Key Metrics Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         {keyMetrics.map((metric, index) => (
-          <div key={index} className="bg-white rounded-xl p-6 shadow-lg border border-gray-100 hover:shadow-xl transition-shadow">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600">{metric.title}</p>
-                <p className="text-3xl font-bold text-gray-900 mt-2">{metric.value}</p>
-                <p className="text-xs text-gray-500 mt-1">{metric.description}</p>
-              </div>
-              <div className={`p-3 rounded-full ${metric.color.replace('text-', 'bg-').replace('-600', '-100')}`}>
+          <div key={index} className="bg-white/70 backdrop-blur-sm rounded-2xl p-6 border border-white/30 shadow-lg hover:shadow-xl transition-all duration-300 group">
+            <div className="flex items-center justify-between mb-4">
+              <div className={`p-3 rounded-xl ${metric.color.replace('text-', 'bg-').replace('-600', '-100')} group-hover:scale-110 transition-transform duration-300`}>
                 {metric.icon}
               </div>
+              <div className="flex items-center">
+                {metric.changeType === 'increase' ? (
+                  <TrendingUp className="w-5 h-5 text-green-500 mr-2" />
+                ) : metric.changeType === 'decrease' ? (
+                  <TrendingDown className="w-5 h-5 text-red-500 mr-2" />
+                ) : (
+                  <div className="w-5 h-5 bg-gray-400 rounded-full mr-2" />
+                )}
+                <span className={`text-sm font-bold ${
+                  metric.changeType === 'increase' ? 'text-green-600' : 
+                  metric.changeType === 'decrease' ? 'text-red-600' : 'text-gray-600'
+                }`}>
+                  {metric.change > 0 ? '+' : ''}{metric.change}%
+                </span>
+              </div>
             </div>
-            <div className="flex items-center mt-4">
-              {metric.changeType === 'increase' ? (
-                <TrendingUp className="w-4 h-4 text-green-500 mr-1" />
-              ) : metric.changeType === 'decrease' ? (
-                <TrendingDown className="w-4 h-4 text-red-500 mr-1" />
-              ) : (
-                <div className="w-4 h-4 bg-gray-400 rounded-full mr-1" />
-              )}
-              <span className={`text-sm font-medium ${
-                metric.changeType === 'increase' ? 'text-green-600' : 
-                metric.changeType === 'decrease' ? 'text-red-600' : 'text-gray-600'
-              }`}>
-                {metric.change > 0 ? '+' : ''}{metric.change}%
-              </span>
+            <div>
+              <h3 className="text-sm font-semibold text-gray-600 uppercase tracking-wide mb-2">{metric.title}</h3>
+              <p className="text-4xl font-bold text-gray-900 mb-2">{metric.value}</p>
+              <p className="text-sm text-gray-500">{metric.description}</p>
             </div>
           </div>
         ))}
       </div>
 
-      {/* Main Sales Forecast vs Actual Chart - Full Width */}
-      <div className="bg-white rounded-xl p-8 shadow-lg border border-gray-100">
-        <div className="flex items-center justify-between mb-6">
+      {/* Main Sales Forecast vs Actual Chart - Enhanced */}
+      <div className="bg-white/70 backdrop-blur-sm rounded-2xl p-8 border border-white/30 shadow-lg mb-8">
+        <div className="flex items-center justify-between mb-8">
           <div>
-            <h3 className="text-3xl font-bold text-gray-900">Sales Forecast vs Actual Performance</h3>
-            <p className="text-gray-600 mt-1">Daily sales performance comparison across all Buford Highway locations</p>
+            <h3 className="text-3xl font-bold text-gray-900 mb-2">Sales Forecast vs Actual Performance</h3>
+            <p className="text-gray-600 text-lg">Daily sales performance comparison across all Buford Highway locations</p>
           </div>
-          <div className="flex items-center gap-2 text-sm text-gray-600">
-            <Eye className="w-4 h-4" />
-            {timeRange} view
+          <div className="flex items-center gap-3">
+            <div className="bg-blue-100 rounded-full px-4 py-2">
+              <div className="flex items-center gap-2 text-sm text-blue-700 font-medium">
+                <Eye className="w-4 h-4" />
+                {timeRange} view
+              </div>
+            </div>
           </div>
         </div>
+        
         <div className="mb-8">
           <LineChart data={salesData} height={400} />
-          {/* Debug info */}
-          <div className="text-xs text-gray-500 mt-2">
-            Data points: {salesData.length}, Sample: {JSON.stringify(salesData.slice(0, 2))}
-          </div>
         </div>
+        
+        {/* Enhanced Performance Metrics */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-          <div className="text-center p-4 bg-blue-50 rounded-lg">
-            <div className="text-3xl font-bold text-blue-600">
-              {Math.round(salesData.reduce((sum, d) => sum + (d.predicted || 0), 0) / salesData.length).toLocaleString()}
+          <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-6 border border-blue-200/50 hover:shadow-lg transition-shadow">
+            <div className="text-center">
+              <div className="w-12 h-12 bg-blue-500 rounded-xl flex items-center justify-center mx-auto mb-3">
+                <span className="text-white text-xl">📊</span>
+              </div>
+              <div className="text-3xl font-bold text-blue-700 mb-1">
+                {Math.round(salesData.reduce((sum, d) => sum + (d.predicted || 0), 0) / salesData.length).toLocaleString()}
+              </div>
+              <div className="text-sm text-blue-600 font-semibold">Avg Predicted</div>
             </div>
-            <div className="text-sm text-blue-600 font-medium">Avg Predicted</div>
           </div>
-          <div className="text-center p-4 bg-green-50 rounded-lg">
-            <div className="text-3xl font-bold text-green-600">
-              {Math.round(salesData.reduce((sum, d) => sum + (d.actual || 0), 0) / salesData.length).toLocaleString()}
+          
+          <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-xl p-6 border border-green-200/50 hover:shadow-lg transition-shadow">
+            <div className="text-center">
+              <div className="w-12 h-12 bg-green-500 rounded-xl flex items-center justify-center mx-auto mb-3">
+                <span className="text-white text-xl">✅</span>
+              </div>
+              <div className="text-3xl font-bold text-green-700 mb-1">
+                {Math.round(salesData.reduce((sum, d) => sum + (d.actual || 0), 0) / salesData.length).toLocaleString()}
+              </div>
+              <div className="text-sm text-green-600 font-semibold">Avg Actual</div>
             </div>
-            <div className="text-sm text-green-600 font-medium">Avg Actual</div>
           </div>
-          <div className="text-center p-4 bg-purple-50 rounded-lg">
-            <div className="text-3xl font-bold text-purple-600">{accuracy}%</div>
-            <div className="text-sm text-purple-600 font-medium">Overall Accuracy</div>
-          </div>
-          <div className="text-center p-4 bg-orange-50 rounded-lg">
-            <div className="text-3xl font-bold text-orange-600">
-              {Math.round(Math.abs(totalPredicted - totalRevenue) / totalPredicted * 100)}%
+          
+          <div className="bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl p-6 border border-purple-200/50 hover:shadow-lg transition-shadow">
+            <div className="text-center">
+              <div className="w-12 h-12 bg-purple-500 rounded-xl flex items-center justify-center mx-auto mb-3">
+                <span className="text-white text-xl">🎯</span>
+              </div>
+              <div className="text-3xl font-bold text-purple-700 mb-1">{accuracy}%</div>
+              <div className="text-sm text-purple-600 font-semibold">Overall Accuracy</div>
             </div>
-            <div className="text-sm text-orange-600 font-medium">Avg Variance</div>
+          </div>
+          
+          <div className="bg-gradient-to-br from-orange-50 to-orange-100 rounded-xl p-6 border border-orange-200/50 hover:shadow-lg transition-shadow">
+            <div className="text-center">
+              <div className="w-12 h-12 bg-orange-500 rounded-xl flex items-center justify-center mx-auto mb-3">
+                <span className="text-white text-xl">📈</span>
+              </div>
+              <div className="text-3xl font-bold text-orange-700 mb-1">
+                {Math.round(Math.abs(totalPredicted - totalRevenue) / totalPredicted * 100)}%
+              </div>
+              <div className="text-sm text-orange-600 font-semibold">Avg Variance</div>
+            </div>
           </div>
         </div>
       </div>
 
-      {/* Filters */}
-      <AnalyticsFilters onFiltersChange={handleFiltersChange} onExport={handleExport} />
+      {/* Enhanced Filters */}
+      <div className="bg-white/70 backdrop-blur-sm rounded-2xl p-6 border border-white/30 shadow-lg mb-8">
+        <AnalyticsFilters onFiltersChange={handleFiltersChange} onExport={handleExport} />
+      </div>
 
       {/* Real-time Metrics */}
-      <RealTimeMetrics />
+      <div className="bg-white/70 backdrop-blur-sm rounded-2xl p-6 border border-white/30 shadow-lg mb-8">
+        <RealTimeMetrics />
+      </div>
 
-      {/* Product Performance Table */}
-      <div className="bg-white rounded-xl p-6 shadow-lg border border-gray-100">
-        <h3 className="text-xl font-bold text-gray-900 mb-4">Top Performing Products</h3>
+      {/* Enhanced Product Performance Table */}
+      <div className="bg-white/70 backdrop-blur-sm rounded-2xl p-8 border border-white/30 shadow-lg mb-8">
+        <div className="flex items-center justify-between mb-6">
+          <h3 className="text-2xl font-bold text-gray-900">Top Performing Products</h3>
+          <div className="bg-blue-100 rounded-full px-4 py-2">
+            <span className="text-sm text-blue-700 font-medium">
+              {showAllProducts ? `${productPerformance.length} products` : `Top ${Math.min(7, productPerformance.length)} products`}
+            </span>
+          </div>
+        </div>
+        
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead>
-              <tr className="border-b border-gray-200">
-                <th className="text-left py-3 px-4 font-semibold text-gray-700">Product</th>
-                <th className="text-left py-3 px-4 font-semibold text-gray-700">Category</th>
-                <th className="text-right py-3 px-4 font-semibold text-gray-700">Sales</th>
-                <th className="text-right py-3 px-4 font-semibold text-gray-700">Accuracy</th>
-                <th className="text-right py-3 px-4 font-semibold text-gray-700">Margin</th>
-                <th className="text-center py-3 px-4 font-semibold text-gray-700">Trend</th>
+              <tr className="border-b-2 border-gray-200">
+                <th className="text-left py-4 px-6 font-bold text-gray-800 text-sm uppercase tracking-wide">Product</th>
+                <th className="text-left py-4 px-6 font-bold text-gray-800 text-sm uppercase tracking-wide">Category</th>
+                <th className="text-right py-4 px-6 font-bold text-gray-800 text-sm uppercase tracking-wide">Sales</th>
+                <th className="text-right py-4 px-6 font-bold text-gray-800 text-sm uppercase tracking-wide">Accuracy</th>
+                <th className="text-right py-4 px-6 font-bold text-gray-800 text-sm uppercase tracking-wide">Margin</th>
+                <th className="text-center py-4 px-6 font-bold text-gray-800 text-sm uppercase tracking-wide">Trend</th>
               </tr>
             </thead>
             <tbody>
               {(showAllProducts ? productPerformance : productPerformance.slice(0, 7)).map((product, index) => (
-                <tr key={index} className="border-b border-gray-100 hover:bg-gray-50">
-                  <td className="py-3 px-4 font-medium text-gray-900">{product.name}</td>
-                  <td className="py-3 px-4 text-gray-600">{product.category}</td>
-                  <td className="py-3 px-4 text-right font-semibold text-gray-900">${product.sales.toLocaleString()}</td>
-                  <td className="py-3 px-4 text-right">
-                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                      product.accuracy > 90 ? 'bg-green-100 text-green-800' :
-                      product.accuracy > 80 ? 'bg-yellow-100 text-yellow-800' :
-                      'bg-red-100 text-red-800'
+                <tr key={index} className="border-b border-gray-100 hover:bg-gray-50/50 transition-colors duration-200">
+                  <td className="py-4 px-6 font-semibold text-gray-900">{product.name}</td>
+                  <td className="py-4 px-6">
+                    <span className="px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-sm font-medium">
+                      {product.category}
+                    </span>
+                  </td>
+                  <td className="py-4 px-6 text-right font-bold text-gray-900 text-lg">${product.sales.toLocaleString()}</td>
+                  <td className="py-4 px-6 text-right">
+                    <span className={`px-3 py-1 rounded-full text-sm font-semibold ${
+                      product.accuracy > 90 ? 'bg-green-100 text-green-800 border border-green-200' :
+                      product.accuracy > 80 ? 'bg-yellow-100 text-yellow-800 border border-yellow-200' :
+                      'bg-red-100 text-red-800 border border-red-200'
                     }`}>
                       {product.accuracy.toFixed(1)}%
                     </span>
                   </td>
-                  <td className="py-3 px-4 text-right font-semibold text-gray-900">{(product.margin * 100).toFixed(1)}%</td>
-                  <td className="py-3 px-4 text-center">
+                  <td className="py-4 px-6 text-right font-bold text-gray-900 text-lg">{(product.margin * 100).toFixed(1)}%</td>
+                  <td className="py-4 px-6 text-center">
                     {product.trend === 'up' ? (
-                      <TrendingUp className="w-4 h-4 text-green-500 mx-auto" />
+                      <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center mx-auto">
+                        <TrendingUp className="w-5 h-5 text-green-600" />
+                      </div>
                     ) : product.trend === 'down' ? (
-                      <TrendingDown className="w-4 h-4 text-red-500 mx-auto" />
+                      <div className="w-8 h-8 bg-red-100 rounded-full flex items-center justify-center mx-auto">
+                        <TrendingDown className="w-5 h-5 text-red-600" />
+                      </div>
                     ) : (
-                      <div className="w-4 h-4 bg-gray-400 rounded-full mx-auto" />
+                      <div className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center mx-auto">
+                        <div className="w-3 h-3 bg-gray-400 rounded-full" />
+                      </div>
                     )}
                   </td>
                 </tr>
@@ -560,50 +628,59 @@ const EnhancedAnalytics: React.FC = () => {
             </tbody>
           </table>
         </div>
+        
         {productPerformance.length > 7 && (
-          <div className="mt-4 text-center">
+          <div className="mt-6 text-center">
             <button
               onClick={() => setShowAllProducts(!showAllProducts)}
-              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+              className="px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl hover:from-blue-700 hover:to-blue-800 transition-all duration-300 font-semibold shadow-lg hover:shadow-xl"
             >
-              {showAllProducts ? 'Show Less' : 'Show More'}
+              {showAllProducts ? 'Show Less Products' : `Show All ${productPerformance.length} Products`}
             </button>
           </div>
         )}
       </div>
 
-      {/* Forecast Accuracy Table */}
-      <div className="bg-white rounded-xl p-6 shadow-lg border border-gray-100">
-        <h3 className="text-xl font-bold text-gray-900 mb-4">Forecast Accuracy by Product</h3>
+      {/* Enhanced Forecast Accuracy Table */}
+      <div className="bg-white/70 backdrop-blur-sm rounded-2xl p-8 border border-white/30 shadow-lg mb-8">
+        <div className="flex items-center justify-between mb-6">
+          <h3 className="text-2xl font-bold text-gray-900">Forecast Accuracy by Product</h3>
+          <div className="bg-purple-100 rounded-full px-4 py-2">
+            <span className="text-sm text-purple-700 font-medium">
+              {showAllForecasts ? `${forecastAccuracy.length} forecasts` : `Top ${Math.min(7, forecastAccuracy.length)} forecasts`}
+            </span>
+          </div>
+        </div>
+        
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead>
-              <tr className="border-b border-gray-200">
-                <th className="text-left py-3 px-4 font-semibold text-gray-700">Product</th>
-                <th className="text-right py-3 px-4 font-semibold text-gray-700">Predicted</th>
-                <th className="text-right py-3 px-4 font-semibold text-gray-700">Actual</th>
-                <th className="text-right py-3 px-4 font-semibold text-gray-700">Accuracy</th>
-                <th className="text-right py-3 px-4 font-semibold text-gray-700">Variance</th>
+              <tr className="border-b-2 border-gray-200">
+                <th className="text-left py-4 px-6 font-bold text-gray-800 text-sm uppercase tracking-wide">Product</th>
+                <th className="text-right py-4 px-6 font-bold text-gray-800 text-sm uppercase tracking-wide">Predicted</th>
+                <th className="text-right py-4 px-6 font-bold text-gray-800 text-sm uppercase tracking-wide">Actual</th>
+                <th className="text-right py-4 px-6 font-bold text-gray-800 text-sm uppercase tracking-wide">Accuracy</th>
+                <th className="text-right py-4 px-6 font-bold text-gray-800 text-sm uppercase tracking-wide">Variance</th>
               </tr>
             </thead>
             <tbody>
               {(showAllForecasts ? forecastAccuracy : forecastAccuracy.slice(0, 7)).map((item, index) => (
-                <tr key={index} className="border-b border-gray-100 hover:bg-gray-50">
-                  <td className="py-3 px-4 font-medium text-gray-900">{item.product}</td>
-                  <td className="py-3 px-4 text-right text-gray-600">{item.predicted.toLocaleString()}</td>
-                  <td className="py-3 px-4 text-right text-gray-600">{item.actual.toLocaleString()}</td>
-                  <td className="py-3 px-4 text-right">
-                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                      item.accuracy > 95 ? 'bg-green-100 text-green-800' :
-                      item.accuracy > 90 ? 'bg-yellow-100 text-yellow-800' :
-                      'bg-red-100 text-red-800'
+                <tr key={index} className="border-b border-gray-100 hover:bg-gray-50/50 transition-colors duration-200">
+                  <td className="py-4 px-6 font-semibold text-gray-900">{item.product}</td>
+                  <td className="py-4 px-6 text-right font-bold text-gray-900 text-lg">{item.predicted.toLocaleString()}</td>
+                  <td className="py-4 px-6 text-right font-bold text-gray-900 text-lg">{item.actual.toLocaleString()}</td>
+                  <td className="py-4 px-6 text-right">
+                    <span className={`px-3 py-1 rounded-full text-sm font-semibold ${
+                      item.accuracy > 95 ? 'bg-green-100 text-green-800 border border-green-200' :
+                      item.accuracy > 90 ? 'bg-yellow-100 text-yellow-800 border border-yellow-200' :
+                      'bg-red-100 text-red-800 border border-red-200'
                     }`}>
                       {item.accuracy.toFixed(1)}%
                     </span>
                   </td>
-                  <td className="py-3 px-4 text-right">
-                    <span className={`font-semibold ${
-                      item.variance > 0 ? 'text-green-600' : 'text-red-600'
+                  <td className="py-4 px-6 text-right">
+                    <span className={`px-3 py-1 rounded-full text-sm font-semibold ${
+                      item.variance > 0 ? 'bg-green-100 text-green-800 border border-green-200' : 'bg-red-100 text-red-800 border border-red-200'
                     }`}>
                       {item.variance > 0 ? '+' : ''}{item.variance.toFixed(1)}%
                     </span>
@@ -613,38 +690,50 @@ const EnhancedAnalytics: React.FC = () => {
             </tbody>
           </table>
         </div>
+        
         {forecastAccuracy.length > 7 && (
-          <div className="mt-4 text-center">
+          <div className="mt-6 text-center">
             <button
               onClick={() => setShowAllForecasts(!showAllForecasts)}
-              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+              className="px-6 py-3 bg-gradient-to-r from-purple-600 to-purple-700 text-white rounded-xl hover:from-purple-700 hover:to-purple-800 transition-all duration-300 font-semibold shadow-lg hover:shadow-xl"
             >
-              {showAllForecasts ? 'Show Less' : 'Show More'}
+              {showAllForecasts ? 'Show Less Forecasts' : `Show All ${forecastAccuracy.length} Forecasts`}
             </button>
           </div>
         )}
       </div>
 
-      {/* AI Insights */}
-      <div className="bg-white rounded-xl p-6 shadow-lg border border-gray-100">
-        <h3 className="text-xl font-bold text-gray-900 mb-4">AI Insights & Recommendations</h3>
+      {/* Enhanced AI Insights */}
+      <div className="bg-white/70 backdrop-blur-sm rounded-2xl p-8 border border-white/30 shadow-lg mb-8">
+        <div className="flex items-center gap-3 mb-6">
+          <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-600 rounded-xl flex items-center justify-center">
+            <span className="text-white text-xl">🤖</span>
+          </div>
+          <h3 className="text-2xl font-bold text-gray-900">AI Insights & Recommendations</h3>
+        </div>
+        
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="p-4 bg-blue-50 rounded-lg">
-            <div className="flex items-center gap-2 mb-2">
-              <CheckCircle className="w-5 h-5 text-blue-600" />
-              <h4 className="font-semibold text-blue-900">High Performance</h4>
+          <div className="p-6 bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl border border-blue-200/50 hover:shadow-lg transition-shadow">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center">
+                <CheckCircle className="w-5 h-5 text-white" />
+              </div>
+              <h4 className="font-bold text-blue-900 text-lg">High Performance</h4>
             </div>
-            <p className="text-sm text-blue-800">
+            <p className="text-blue-800 leading-relaxed">
               Asian Produce category shows 94.2% accuracy with strong demand for Kimchi and Fresh Tofu. 
               Consider expanding inventory for these high-margin items.
             </p>
           </div>
-          <div className="p-4 bg-yellow-50 rounded-lg">
-            <div className="flex items-center gap-2 mb-2">
-              <AlertTriangle className="w-5 h-5 text-yellow-600" />
-              <h4 className="font-semibold text-yellow-900">Attention Needed</h4>
+          
+          <div className="p-6 bg-gradient-to-br from-yellow-50 to-yellow-100 rounded-xl border border-yellow-200/50 hover:shadow-lg transition-shadow">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-8 h-8 bg-yellow-500 rounded-lg flex items-center justify-center">
+                <AlertTriangle className="w-5 h-5 text-white" />
+              </div>
+              <h4 className="font-bold text-yellow-900 text-lg">Attention Needed</h4>
             </div>
-            <p className="text-sm text-yellow-800">
+            <p className="text-yellow-800 leading-relaxed">
               Fresh Seafood category shows high variance (15.2%). Implement dynamic pricing 
               and better demand forecasting for live products.
             </p>
@@ -652,24 +741,41 @@ const EnhancedAnalytics: React.FC = () => {
         </div>
       </div>
 
-      {/* Waste Reduction Analysis */}
-      <div className="bg-white rounded-xl p-6 shadow-lg border border-gray-100">
-        <h3 className="text-xl font-bold text-gray-900 mb-4">Waste Reduction Analysis</h3>
+      {/* Enhanced Waste Reduction Analysis */}
+      <div className="bg-white/70 backdrop-blur-sm rounded-2xl p-8 border border-white/30 shadow-lg mb-8">
+        <div className="flex items-center gap-3 mb-6">
+          <div className="w-10 h-10 bg-gradient-to-r from-green-500 to-emerald-600 rounded-xl flex items-center justify-center">
+            <span className="text-white text-xl">♻️</span>
+          </div>
+          <h3 className="text-2xl font-bold text-gray-900">Waste Reduction Analysis</h3>
+        </div>
+        
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="text-center p-4 bg-green-50 rounded-lg">
-            <div className="text-2xl font-bold text-green-600">3.8%</div>
-            <div className="text-sm text-green-600 font-medium">Waste Rate</div>
-            <div className="text-xs text-green-600 mt-1">Industry avg: 8.2%</div>
+          <div className="text-center p-6 bg-gradient-to-br from-green-50 to-green-100 rounded-xl border border-green-200/50 hover:shadow-lg transition-shadow">
+            <div className="w-16 h-16 bg-green-500 rounded-xl flex items-center justify-center mx-auto mb-4">
+              <span className="text-white text-2xl">📊</span>
+            </div>
+            <div className="text-4xl font-bold text-green-700 mb-2">3.8%</div>
+            <div className="text-lg font-semibold text-green-600 mb-1">Waste Rate</div>
+            <div className="text-sm text-green-600">Industry avg: 8.2%</div>
           </div>
-          <div className="text-center p-4 bg-blue-50 rounded-lg">
-            <div className="text-2xl font-bold text-blue-600">$2,340</div>
-            <div className="text-sm text-blue-600 font-medium">Monthly Savings</div>
-            <div className="text-xs text-blue-600 mt-1">vs. last quarter</div>
+          
+          <div className="text-center p-6 bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl border border-blue-200/50 hover:shadow-lg transition-shadow">
+            <div className="w-16 h-16 bg-blue-500 rounded-xl flex items-center justify-center mx-auto mb-4">
+              <span className="text-white text-2xl">💰</span>
+            </div>
+            <div className="text-4xl font-bold text-blue-700 mb-2">$2,340</div>
+            <div className="text-lg font-semibold text-blue-600 mb-1">Monthly Savings</div>
+            <div className="text-sm text-blue-600">vs. last quarter</div>
           </div>
-          <div className="text-center p-4 bg-purple-50 rounded-lg">
-            <div className="text-2xl font-bold text-purple-600">87%</div>
-            <div className="text-sm text-purple-600 font-medium">Efficiency Score</div>
-            <div className="text-xs text-purple-600 mt-1">AI-optimized ordering</div>
+          
+          <div className="text-center p-6 bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl border border-purple-200/50 hover:shadow-lg transition-shadow">
+            <div className="w-16 h-16 bg-purple-500 rounded-xl flex items-center justify-center mx-auto mb-4">
+              <span className="text-white text-2xl">🎯</span>
+            </div>
+            <div className="text-4xl font-bold text-purple-700 mb-2">87%</div>
+            <div className="text-lg font-semibold text-purple-600 mb-1">Efficiency Score</div>
+            <div className="text-sm text-purple-600">AI-optimized ordering</div>
           </div>
         </div>
       </div>

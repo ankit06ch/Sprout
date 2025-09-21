@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { BrowserRouter as Router, Routes, Route, useNavigate } from 'react-router-dom';
-import { BarChart, AlertTriangle, Package, ChevronDown, Paperclip, Mic, ArrowRight, Menu, X, Home, Settings, HelpCircle, LogOut, Zap, MessageCircle, Calendar } from 'react-feather';
+import { BarChart, AlertTriangle, Package, ChevronDown, Paperclip, Mic, ArrowRight, Menu, X, Home, Settings, HelpCircle, LogOut, Zap, MessageCircle, Calendar, Download, CheckCircle } from 'react-feather';
 import Header from './components/Header';
 import ScrollIcons from './components/ScrollIcons';
 import PipelineLines from './components/PipelineLines';
@@ -502,6 +502,181 @@ function DashboardPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [isVoiceAgentOpen, setIsVoiceAgentOpen] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  // Alert management state
+  const [expiringItems, setExpiringItems] = useState([
+    { id: 1, name: "Organic Milk 2%", expiry: "Today", aisle: "Dairy", stock: 45, cost: "$2,340", category: "Dairy", status: "active" },
+    { id: 2, name: "Fresh Strawberries", expiry: "Tomorrow", aisle: "Produce", stock: 23, cost: "$1,150", category: "Produce", status: "active" },
+    { id: 3, name: "Ground Beef 80/20", expiry: "Tomorrow", aisle: "Meat", stock: 12, cost: "$480", category: "Meat", status: "active" },
+    { id: 4, name: "Greek Yogurt Plain", expiry: "Day After", aisle: "Dairy", stock: 67, cost: "$1,340", category: "Dairy", status: "active" },
+    { id: 5, name: "Spinach Leaves", expiry: "Day After", aisle: "Produce", stock: 34, cost: "$680", category: "Produce", status: "active" },
+    { id: 6, name: "Chicken Breast", expiry: "Day After", aisle: "Meat", stock: 28, cost: "$840", category: "Meat", status: "active" },
+    { id: 7, name: "Sourdough Bread", expiry: "Today", aisle: "Bakery", stock: 15, cost: "$225", category: "Bakery", status: "active" },
+    { id: 8, name: "Salmon Fillet", expiry: "Tomorrow", aisle: "Seafood", stock: 8, cost: "$320", category: "Seafood", status: "active" },
+    { id: 9, name: "Avocados Organic", expiry: "Day After", aisle: "Produce", stock: 42, cost: "$840", category: "Produce", status: "active" },
+    { id: 10, name: "Cottage Cheese", expiry: "Today", aisle: "Dairy", stock: 31, cost: "$465", category: "Dairy", status: "active" },
+    { id: 11, name: "Ground Turkey", expiry: "Tomorrow", aisle: "Meat", stock: 19, cost: "$380", category: "Meat", status: "active" },
+    { id: 12, name: "Bananas Organic", expiry: "Day After", aisle: "Produce", stock: 56, cost: "$280", category: "Produce", status: "active" }
+  ]);
+
+  const [lowStockItems, setLowStockItems] = useState([
+    { id: 1, name: "Toilet Paper 12-pack", stock: 0, min: 50, aisle: "Health", reorder: "2 days", status: "active" },
+    { id: 2, name: "Bananas Organic", stock: 8, min: 25, aisle: "Produce", reorder: "1 day", status: "active" },
+    { id: 3, name: "Whole Wheat Bread", stock: 3, min: 15, aisle: "Bakery", reorder: "Today", status: "active" },
+    { id: 4, name: "Cheddar Cheese Block", stock: 12, min: 30, aisle: "Dairy", reorder: "3 days", status: "active" },
+    { id: 5, name: "Olive Oil Extra Virgin", stock: 5, min: 20, aisle: "Pantry", reorder: "2 days", status: "active" },
+    { id: 6, name: "Eggs Grade A Large", stock: 18, min: 40, aisle: "Dairy", reorder: "1 day", status: "active" },
+    { id: 7, name: "Paper Towels", stock: 7, min: 25, aisle: "Health", reorder: "1 day", status: "active" },
+    { id: 8, name: "Apples Red", stock: 14, min: 30, aisle: "Produce", reorder: "2 days", status: "active" }
+  ]);
+
+  const [qualityIssues, setQualityIssues] = useState([
+    { id: 1, name: "Bell Peppers Red", issue: "Bruising", aisle: "Produce", reported: "2h ago", action: "Move to clearance", status: "active" },
+    { id: 2, name: "Milk 1% Gallon", issue: "Temperature", aisle: "Dairy", reported: "4h ago", action: "Check cooler", status: "active" },
+    { id: 3, name: "Ground Turkey", issue: "Color Change", aisle: "Meat", reported: "6h ago", action: "Remove from sale", status: "active" },
+    { id: 4, name: "Lettuce Romaine", issue: "Wilting", aisle: "Produce", reported: "8h ago", action: "Discard", status: "active" },
+    { id: 5, name: "Yogurt Strawberry", issue: "Packaging", aisle: "Dairy", reported: "1d ago", action: "Repackage", status: "active" }
+  ]);
+
+  const [equipmentAlerts, setEquipmentAlerts] = useState([
+    { id: 1, equipment: "Produce Cooler A", issue: "Temperature High", temp: "45°F", threshold: "38°F", status: "Critical" },
+    { id: 2, equipment: "Dairy Refrigerator", issue: "Door Ajar", duration: "30 min", action: "Close door", status: "Warning" },
+    { id: 3, equipment: "POS System #3", issue: "Network Slow", speed: "2.1 Mbps", normal: "50+ Mbps", status: "Warning" },
+    { id: 4, equipment: "Security Camera B2", issue: "Offline", lastSeen: "2 hours ago", location: "Aisle 5", status: "Critical" },
+    { id: 5, equipment: "Checkout Scale #2", issue: "Calibration Needed", lastCal: "3 days ago", nextDue: "Today", status: "Warning" },
+    { id: 6, equipment: "Freezer Unit C", issue: "Temperature Fluctuation", temp: "12°F", threshold: "0°F", status: "Warning" }
+  ]);
+
+  const [recentActivity, setRecentActivity] = useState([
+    { id: 1, time: "2 minutes ago", action: "Milk expiration alert triggered", user: "System", type: "Expiration" },
+    { id: 2, time: "15 minutes ago", action: "Low stock alert for bananas resolved", user: "John Smith", type: "Stock" },
+    { id: 3, time: "1 hour ago", action: "Quality issue reported for lettuce", user: "Sarah Johnson", type: "Quality" },
+    { id: 4, time: "2 hours ago", action: "Equipment alert: Produce cooler temperature high", user: "System", type: "Equipment" },
+    { id: 5, time: "3 hours ago", action: "Auto reorder placed for toilet paper", user: "System", type: "Stock" },
+    { id: 6, time: "4 hours ago", action: "Chicken breast moved to clearance", user: "Mike Davis", type: "Expiration" }
+  ]);
+
+  // Button handlers
+  const handleMarkDown = (itemId: number) => {
+    setExpiringItems(prev => prev.map(item => 
+      item.id === itemId ? { ...item, status: 'marked_down' } : item
+    ));
+    addActivity(`Marked down ${expiringItems.find(item => item.id === itemId)?.name}`, currentUser?.displayName || 'User', 'Expiration');
+  };
+
+  const handleMoveFront = (itemId: number) => {
+    setExpiringItems(prev => prev.map(item => 
+      item.id === itemId ? { ...item, status: 'moved_front' } : item
+    ));
+    addActivity(`Moved ${expiringItems.find(item => item.id === itemId)?.name} to front`, currentUser?.displayName || 'User', 'Expiration');
+  };
+
+  const handleDonate = (itemId: number) => {
+    setExpiringItems(prev => prev.map(item => 
+      item.id === itemId ? { ...item, status: 'donated' } : item
+    ));
+    addActivity(`Donated ${expiringItems.find(item => item.id === itemId)?.name}`, currentUser?.displayName || 'User', 'Expiration');
+  };
+
+  const handleAutoReorder = (itemId: number) => {
+    setLowStockItems(prev => prev.map(item => 
+      item.id === itemId ? { ...item, status: 'reordered' } : item
+    ));
+    addActivity(`Auto reordered ${lowStockItems.find(item => item.id === itemId)?.name}`, 'System', 'Stock');
+  };
+
+  const handleFindAlternative = (itemId: number) => {
+    setLowStockItems(prev => prev.map(item => 
+      item.id === itemId ? { ...item, status: 'alternative_found' } : item
+    ));
+    addActivity(`Found alternative for ${lowStockItems.find(item => item.id === itemId)?.name}`, currentUser?.displayName || 'User', 'Stock');
+  };
+
+  const handleRemoveItem = (itemId: number) => {
+    setQualityIssues(prev => prev.map(item => 
+      item.id === itemId ? { ...item, status: 'removed' } : item
+    ));
+    addActivity(`Removed ${qualityIssues.find(item => item.id === itemId)?.name} due to quality issue`, currentUser?.displayName || 'User', 'Quality');
+  };
+
+  const handleReportIssue = (itemId: number) => {
+    setQualityIssues(prev => prev.map(item => 
+      item.id === itemId ? { ...item, status: 'reported' } : item
+    ));
+    addActivity(`Reported quality issue for ${qualityIssues.find(item => item.id === itemId)?.name}`, currentUser?.displayName || 'User', 'Quality');
+  };
+
+  const handleFixNow = (itemId: number) => {
+    setEquipmentAlerts(prev => prev.map(item => 
+      item.id === itemId ? { ...item, status: 'fixed' } : item
+    ));
+    addActivity(`Fixed ${equipmentAlerts.find(item => item.id === itemId)?.equipment}`, currentUser?.displayName || 'User', 'Equipment');
+  };
+
+  const handleSchedule = (itemId: number) => {
+    setEquipmentAlerts(prev => prev.map(item => 
+      item.id === itemId ? { ...item, status: 'scheduled' } : item
+    ));
+    addActivity(`Scheduled maintenance for ${equipmentAlerts.find(item => item.id === itemId)?.equipment}`, currentUser?.displayName || 'User', 'Equipment');
+  };
+
+  const addActivity = (action: string, user: string, type: string) => {
+    const newActivity = {
+      id: Date.now(),
+      time: "Just now",
+      action,
+      user,
+      type
+    };
+    setRecentActivity(prev => [newActivity, ...prev.slice(0, 5)]);
+  };
+
+  const handleExportReport = () => {
+    const reportData = {
+      expiringItems: expiringItems.filter(item => item.status === 'active'),
+      lowStockItems: lowStockItems.filter(item => item.status === 'active'),
+      qualityIssues: qualityIssues.filter(item => item.status === 'active'),
+      equipmentAlerts: equipmentAlerts.filter(item => item.status !== 'fixed' && item.status !== 'scheduled'),
+      timestamp: new Date().toISOString()
+    };
+    
+    const dataStr = JSON.stringify(reportData, null, 2);
+    const dataBlob = new Blob([dataStr], {type: 'application/json'});
+    const url = URL.createObjectURL(dataBlob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `inventory-alert-report-${new Date().toISOString().split('T')[0]}.json`;
+    link.click();
+    URL.revokeObjectURL(url);
+    
+    addActivity('Exported alert report', currentUser?.displayName || 'User', 'System');
+  };
+
+  const handleMarkAllRead = () => {
+    setExpiringItems(prev => prev.map(item => ({ ...item, status: 'read' })));
+    setLowStockItems(prev => prev.map(item => ({ ...item, status: 'read' })));
+    setQualityIssues(prev => prev.map(item => ({ ...item, status: 'read' })));
+    setEquipmentAlerts(prev => prev.map(item => ({ ...item, status: 'acknowledged' })));
+    
+    addActivity('Marked all alerts as read', currentUser?.displayName || 'User', 'System');
+  };
+
+  const handleAlertSettings = () => {
+    alert('Alert Settings:\n\n• Expiration alerts: 3 days before\n• Low stock threshold: 20% of minimum\n• Quality check frequency: Every 4 hours\n• Equipment monitoring: Real-time\n• Notification method: Email + Dashboard');
+    addActivity('Opened alert settings', currentUser?.displayName || 'User', 'System');
+  };
+
+  const handleSendNotifications = () => {
+    const activeAlerts = [
+      ...expiringItems.filter(item => item.status === 'active'),
+      ...lowStockItems.filter(item => item.status === 'active'),
+      ...qualityIssues.filter(item => item.status === 'active'),
+      ...equipmentAlerts.filter(item => item.status !== 'fixed' && item.status !== 'scheduled')
+    ];
+    
+    alert(`Notifications sent to staff:\n\n• ${activeAlerts.length} active alerts\n• Priority items highlighted\n• Action items assigned\n• Follow-up scheduled`);
+    addActivity('Sent notifications to staff', currentUser?.displayName || 'User', 'System');
+  };
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -1051,33 +1226,388 @@ function DashboardPage() {
 
         {activeSection === 'alerts' && (
           <div className="pt-28 pl-2 pr-8 pb-8 animate-fade-in-up">
-            <div className="bg-white/20 backdrop-blur-md border border-white/30 rounded-2xl shadow-2xl p-6">
-              <h1 className="text-2xl font-bold text-gray-800 mb-4">Alerts & What's Going Bad</h1>
-              <p className="text-gray-600 mb-6">Monitor products that are expiring soon or have low stock levels.</p>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                <div className="bg-red-50 border border-red-200 rounded-xl p-4">
-                  <div className="flex items-center gap-2 mb-2">
-                    <AlertTriangle className="w-5 h-5 text-red-600" />
-                    <h3 className="font-semibold text-red-800">Expiring Soon</h3>
+            <div className="bg-white rounded-3xl shadow-2xl p-8">
+              {/* Header Section */}
+              <div className="flex items-center justify-between mb-8">
+                <div>
+                  <h1 className="text-4xl font-bold text-gray-900 mb-2">Inventory Alerts</h1>
+                  <p className="text-gray-600 text-lg">Real-time monitoring of inventory issues and operational alerts</p>
+                </div>
+                <div className="flex items-center gap-3 bg-green-50 px-4 py-2 rounded-full">
+                  <div className="w-3 h-3 bg-green-600 rounded-full animate-pulse"></div>
+                  <span className="text-green-800 font-medium">Live Updates</span>
+                </div>
+              </div>
+
+              {/* Alert Summary Cards */}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                <div className="bg-white border-2 border-green-200 rounded-2xl p-6 hover:shadow-lg transition-all duration-300">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="w-10 h-10 bg-green-100 rounded-xl flex items-center justify-center">
+                      <AlertTriangle className="w-5 h-5 text-green-700" />
+                    </div>
+                    <h3 className="font-bold text-gray-900 text-lg">Expiring Soon</h3>
                   </div>
-                  <p className="text-sm text-red-700">12 items expiring in the next 3 days</p>
+                  <p className="text-3xl font-bold text-green-700 mb-2">47</p>
+                  <p className="text-gray-600 mb-3">items expiring in next 3 days</p>
+                  <div className="flex gap-2">
+                    <span className="bg-green-100 text-green-800 text-xs px-3 py-1 rounded-full font-medium">Critical: 12</span>
+                    <span className="bg-gray-100 text-gray-700 text-xs px-3 py-1 rounded-full font-medium">Warning: 35</span>
+                  </div>
                 </div>
                 
-                <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-4">
-                  <div className="flex items-center gap-2 mb-2">
-                    <Package className="w-5 h-5 text-yellow-600" />
-                    <h3 className="font-semibold text-yellow-800">Low Stock</h3>
+                <div className="bg-white border-2 border-green-200 rounded-2xl p-6 hover:shadow-lg transition-all duration-300">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="w-10 h-10 bg-green-100 rounded-xl flex items-center justify-center">
+                      <Package className="w-5 h-5 text-green-700" />
+                    </div>
+                    <h3 className="font-bold text-gray-900 text-lg">Low Stock</h3>
                   </div>
-                  <p className="text-sm text-yellow-700">8 items below minimum stock level</p>
+                  <p className="text-3xl font-bold text-green-700 mb-2">23</p>
+                  <p className="text-gray-600 mb-3">items below minimum level</p>
+                  <div className="flex gap-2">
+                    <span className="bg-red-100 text-red-700 text-xs px-3 py-1 rounded-full font-medium">Out: 8</span>
+                    <span className="bg-green-100 text-green-800 text-xs px-3 py-1 rounded-full font-medium">Low: 15</span>
+                  </div>
                 </div>
                 
-                <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
-                  <div className="flex items-center gap-2 mb-2">
-                    <BarChart className="w-5 h-5 text-blue-600" />
-                    <h3 className="font-semibold text-blue-800">Performance</h3>
+                <div className="bg-white border-2 border-green-200 rounded-2xl p-6 hover:shadow-lg transition-all duration-300">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="w-10 h-10 bg-green-100 rounded-xl flex items-center justify-center">
+                      <AlertTriangle className="w-5 h-5 text-green-700" />
+                    </div>
+                    <h3 className="font-bold text-gray-900 text-lg">Quality Issues</h3>
                   </div>
-                  <p className="text-sm text-blue-700">3 items with declining sales</p>
+                  <p className="text-3xl font-bold text-green-700 mb-2">9</p>
+                  <p className="text-gray-600 mb-3">items with quality concerns</p>
+                  <div className="flex gap-2">
+                    <span className="bg-red-100 text-red-700 text-xs px-3 py-1 rounded-full font-medium">Damaged: 3</span>
+                    <span className="bg-green-100 text-green-800 text-xs px-3 py-1 rounded-full font-medium">Spoiled: 6</span>
+                  </div>
+                </div>
+
+                <div className="bg-white border-2 border-green-200 rounded-2xl p-6 hover:shadow-lg transition-all duration-300">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="w-10 h-10 bg-green-100 rounded-xl flex items-center justify-center">
+                      <Zap className="w-5 h-5 text-green-700" />
+                    </div>
+                    <h3 className="font-bold text-gray-900 text-lg">Equipment</h3>
+                  </div>
+                  <p className="text-3xl font-bold text-green-700 mb-2">5</p>
+                  <p className="text-gray-600 mb-3">equipment alerts</p>
+                  <div className="flex gap-2">
+                    <span className="bg-red-100 text-red-700 text-xs px-3 py-1 rounded-full font-medium">Critical: 1</span>
+                    <span className="bg-green-100 text-green-800 text-xs px-3 py-1 rounded-full font-medium">Maintenance: 4</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Main Content Grid */}
+              <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
+                {/* Critical Expiring Items - Full Width */}
+                <div className="xl:col-span-2 bg-white border-2 border-green-200 rounded-2xl p-6">
+                  <div className="flex items-center justify-between mb-6">
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
+                        <AlertTriangle className="w-4 h-4 text-green-700" />
+                      </div>
+                      <h3 className="text-xl font-bold text-gray-900">Critical Expiring Items</h3>
+                    </div>
+                    <span className="bg-green-100 text-green-800 text-sm px-4 py-2 rounded-full font-medium">12 items</span>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-h-96 overflow-y-auto">
+                    {expiringItems.filter(item => item.status === 'active').map((item) => (
+                      <div key={item.id} className={`border rounded-xl p-4 hover:bg-green-50 transition-colors ${
+                        item.status === 'marked_down' ? 'bg-green-100 border-green-300' : 
+                        item.status === 'moved_front' ? 'bg-blue-100 border-blue-300' :
+                        item.status === 'donated' ? 'bg-purple-100 border-purple-300' :
+                        'bg-gray-50 border-green-200'
+                      }`}>
+                        <div className="flex items-center justify-between mb-3">
+                          <div className="flex-1">
+                            <h4 className="font-bold text-gray-900 text-sm">{item.name}</h4>
+                            <p className="text-xs text-gray-600">Aisle {item.aisle} • {item.stock} units</p>
+                          </div>
+                          <div className="text-right">
+                            <p className="text-sm font-bold text-green-700">{item.expiry}</p>
+                            <p className="text-xs text-gray-500">{item.cost} risk</p>
+                          </div>
+                        </div>
+                        {item.status === 'active' ? (
+                          <div className="flex gap-2">
+                            <button 
+                              onClick={() => handleMarkDown(item.id)}
+                              className="bg-green-600 text-white text-xs px-3 py-1 rounded-lg hover:bg-green-700 transition-colors font-medium"
+                            >
+                              Mark Down
+                            </button>
+                            <button 
+                              onClick={() => handleMoveFront(item.id)}
+                              className="bg-white border border-green-300 text-green-700 text-xs px-3 py-1 rounded-lg hover:bg-green-50 transition-colors font-medium"
+                            >
+                              Move Front
+                            </button>
+                            <button 
+                              onClick={() => handleDonate(item.id)}
+                              className="bg-gray-100 text-gray-700 text-xs px-3 py-1 rounded-lg hover:bg-gray-200 transition-colors font-medium"
+                            >
+                              Donate
+                            </button>
+                          </div>
+                        ) : (
+                          <div className="text-xs text-gray-500">
+                            {item.status === 'marked_down' && '✓ Marked down for clearance'}
+                            {item.status === 'moved_front' && '✓ Moved to front of shelf'}
+                            {item.status === 'donated' && '✓ Donated to charity'}
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Right Sidebar */}
+                <div className="space-y-6">
+                  {/* Low Stock Items */}
+                  <div className="bg-white border-2 border-green-200 rounded-2xl p-6">
+                    <div className="flex items-center justify-between mb-4">
+                      <div className="flex items-center gap-2">
+                        <Package className="w-5 h-5 text-green-700" />
+                        <h3 className="font-bold text-gray-900">Low Stock</h3>
+                      </div>
+                      <span className="bg-green-100 text-green-800 text-xs px-3 py-1 rounded-full font-medium">23 items</span>
+                    </div>
+                    <div className="space-y-3 max-h-64 overflow-y-auto">
+                      {lowStockItems.filter(item => item.status === 'active').map((item) => (
+                        <div key={item.id} className={`border rounded-lg p-3 ${
+                          item.status === 'reordered' ? 'bg-green-100 border-green-300' : 
+                          item.status === 'alternative_found' ? 'bg-blue-100 border-blue-300' :
+                          'bg-gray-50 border-green-200'
+                        }`}>
+                          <div className="flex items-center justify-between mb-2">
+                            <div>
+                              <h4 className="font-semibold text-gray-900 text-sm">{item.name}</h4>
+                              <p className="text-xs text-gray-600">Min: {item.min} • Aisle {item.aisle}</p>
+                            </div>
+                            <div className="text-right">
+                              <p className="text-sm font-bold text-green-700">{item.stock} left</p>
+                              <p className="text-xs text-gray-500">{item.reorder}</p>
+                            </div>
+                          </div>
+                          {item.status === 'active' ? (
+                            <div className="flex gap-1">
+                              <button 
+                                onClick={() => handleAutoReorder(item.id)}
+                                className="bg-green-600 text-white text-xs px-2 py-1 rounded hover:bg-green-700 transition-colors"
+                              >
+                                Reorder
+                              </button>
+                              <button 
+                                onClick={() => handleFindAlternative(item.id)}
+                                className="bg-white border border-green-300 text-green-700 text-xs px-2 py-1 rounded hover:bg-green-50 transition-colors"
+                              >
+                                Alternative
+                              </button>
+                            </div>
+                          ) : (
+                            <div className="text-xs text-gray-500">
+                              {item.status === 'reordered' && '✓ Auto reorder placed'}
+                              {item.status === 'alternative_found' && '✓ Alternative product found'}
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Quality Issues */}
+                  <div className="bg-white border-2 border-green-200 rounded-2xl p-6">
+                    <div className="flex items-center justify-between mb-4">
+                      <div className="flex items-center gap-2">
+                        <AlertTriangle className="w-5 h-5 text-green-700" />
+                        <h3 className="font-bold text-gray-900">Quality Issues</h3>
+                      </div>
+                      <span className="bg-green-100 text-green-800 text-xs px-3 py-1 rounded-full font-medium">9 items</span>
+                    </div>
+                    <div className="space-y-3 max-h-48 overflow-y-auto">
+                      {qualityIssues.filter(item => item.status === 'active').map((item) => (
+                        <div key={item.id} className={`border rounded-lg p-3 ${
+                          item.status === 'removed' ? 'bg-red-100 border-red-300' : 
+                          item.status === 'reported' ? 'bg-blue-100 border-blue-300' :
+                          'bg-gray-50 border-green-200'
+                        }`}>
+                          <div className="flex items-center justify-between mb-2">
+                            <div>
+                              <h4 className="font-semibold text-gray-900 text-sm">{item.name}</h4>
+                              <p className="text-xs text-gray-600">Issue: {item.issue}</p>
+                            </div>
+                            <div className="text-right">
+                              <p className="text-sm font-bold text-green-700">{item.reported}</p>
+                              <p className="text-xs text-gray-500">{item.action}</p>
+                            </div>
+                          </div>
+                          {item.status === 'active' ? (
+                            <div className="flex gap-1">
+                              <button 
+                                onClick={() => handleRemoveItem(item.id)}
+                                className="bg-red-600 text-white text-xs px-2 py-1 rounded hover:bg-red-700 transition-colors"
+                              >
+                                Remove
+                              </button>
+                              <button 
+                                onClick={() => handleReportIssue(item.id)}
+                                className="bg-white border border-green-300 text-green-700 text-xs px-2 py-1 rounded hover:bg-green-50 transition-colors"
+                              >
+                                Report
+                              </button>
+                            </div>
+                          ) : (
+                            <div className="text-xs text-gray-500">
+                              {item.status === 'removed' && '✓ Item removed from sale'}
+                              {item.status === 'reported' && '✓ Issue reported to management'}
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Equipment Alerts Section */}
+              <div className="mt-8 bg-white border-2 border-green-200 rounded-2xl p-6">
+                <div className="flex items-center justify-between mb-6">
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
+                      <Zap className="w-4 h-4 text-green-700" />
+                    </div>
+                    <h3 className="text-xl font-bold text-gray-900">Equipment & System Alerts</h3>
+                  </div>
+                  <span className="bg-green-100 text-green-800 text-sm px-4 py-2 rounded-full font-medium">5 alerts</span>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {equipmentAlerts.filter(item => item.status !== 'fixed' && item.status !== 'scheduled').map((item) => (
+                    <div key={item.id} className={`border rounded-xl p-4 ${
+                      item.status === 'fixed' ? 'bg-green-100 border-green-300' :
+                      item.status === 'scheduled' ? 'bg-blue-100 border-blue-300' :
+                      item.status === 'Critical' ? 'bg-red-50 border-red-200' : 'bg-gray-50 border-green-200'
+                    }`}>
+                      <div className="flex items-center justify-between mb-3">
+                        <div>
+                          <h4 className={`font-bold text-sm ${
+                            item.status === 'fixed' ? 'text-green-800' :
+                            item.status === 'scheduled' ? 'text-blue-800' :
+                            item.status === 'Critical' ? 'text-red-800' : 'text-gray-900'
+                          }`}>
+                            {item.equipment}
+                          </h4>
+                          <p className={`text-xs ${
+                            item.status === 'fixed' ? 'text-green-600' :
+                            item.status === 'scheduled' ? 'text-blue-600' :
+                            item.status === 'Critical' ? 'text-red-600' : 'text-gray-600'
+                          }`}>
+                            {item.issue}
+                          </p>
+                        </div>
+                        <span className={`text-xs px-2 py-1 rounded-full font-medium ${
+                          item.status === 'fixed' ? 'bg-green-200 text-green-800' :
+                          item.status === 'scheduled' ? 'bg-blue-200 text-blue-800' :
+                          item.status === 'Critical' ? 'bg-red-200 text-red-800' : 'bg-green-100 text-green-800'
+                        }`}>
+                          {item.status === 'fixed' ? 'Fixed' : item.status === 'scheduled' ? 'Scheduled' : item.status}
+                        </span>
+                      </div>
+                      {item.status !== 'fixed' && item.status !== 'scheduled' ? (
+                        <div className="flex gap-2">
+                          <button 
+                            onClick={() => handleFixNow(item.id)}
+                            className="bg-green-600 text-white text-xs px-3 py-1 rounded hover:bg-green-700 transition-colors font-medium"
+                          >
+                            Fix Now
+                          </button>
+                          <button 
+                            onClick={() => handleSchedule(item.id)}
+                            className="bg-white border border-green-300 text-green-700 text-xs px-3 py-1 rounded hover:bg-green-50 transition-colors font-medium"
+                          >
+                            Schedule
+                          </button>
+                        </div>
+                      ) : (
+                        <div className="text-xs text-gray-500">
+                          {item.status === 'fixed' && '✓ Equipment fixed and operational'}
+                          {item.status === 'scheduled' && '✓ Maintenance scheduled'}
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Action Bar */}
+              <div className="mt-8 flex flex-wrap gap-4 justify-center">
+                <button 
+                  onClick={handleExportReport}
+                  className="bg-green-600 text-white px-8 py-3 rounded-xl hover:bg-green-700 transition-colors flex items-center gap-2 font-medium"
+                >
+                  <Download className="w-4 h-4" />
+                  Export Report
+                </button>
+                <button 
+                  onClick={handleMarkAllRead}
+                  className="bg-white border-2 border-green-300 text-green-700 px-8 py-3 rounded-xl hover:bg-green-50 transition-colors flex items-center gap-2 font-medium"
+                >
+                  <CheckCircle className="w-4 h-4" />
+                  Mark All Read
+                </button>
+                <button 
+                  onClick={handleAlertSettings}
+                  className="bg-white border-2 border-green-300 text-green-700 px-8 py-3 rounded-xl hover:bg-green-50 transition-colors flex items-center gap-2 font-medium"
+                >
+                  <Settings className="w-4 h-4" />
+                  Alert Settings
+                </button>
+                <button 
+                  onClick={handleSendNotifications}
+                  className="bg-white border-2 border-green-300 text-green-700 px-8 py-3 rounded-xl hover:bg-green-50 transition-colors flex items-center gap-2 font-medium"
+                >
+                  <MessageCircle className="w-4 h-4" />
+                  Send Notifications
+                </button>
+              </div>
+
+              {/* Recent Activity */}
+              <div className="mt-8 bg-white border-2 border-green-200 rounded-2xl p-6">
+                <div className="flex items-center gap-3 mb-6">
+                  <div className="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
+                    <Calendar className="w-4 h-4 text-green-700" />
+                  </div>
+                  <h3 className="text-xl font-bold text-gray-900">Recent Activity</h3>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {recentActivity.map((activity) => (
+                    <div key={activity.id} className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+                      <div className={`w-3 h-3 rounded-full ${
+                        activity.type === 'Expiration' ? 'bg-green-600' :
+                        activity.type === 'Stock' ? 'bg-blue-600' :
+                        activity.type === 'Quality' ? 'bg-orange-600' :
+                        activity.type === 'Equipment' ? 'bg-purple-600' :
+                        'bg-gray-600'
+                      }`}></div>
+                      <div className="flex-1">
+                        <p className="text-sm text-gray-900 font-medium">{activity.action}</p>
+                        <p className="text-xs text-gray-500">by {activity.user} • {activity.time}</p>
+                      </div>
+                      <span className={`text-xs px-2 py-1 rounded-full font-medium ${
+                        activity.type === 'Expiration' ? 'bg-green-100 text-green-800' :
+                        activity.type === 'Stock' ? 'bg-blue-100 text-blue-800' :
+                        activity.type === 'Quality' ? 'bg-orange-100 text-orange-800' :
+                        activity.type === 'Equipment' ? 'bg-purple-100 text-purple-800' :
+                        'bg-gray-100 text-gray-800'
+                      }`}>
+                        {activity.type}
+                      </span>
+                    </div>
+                  ))}
                 </div>
               </div>
             </div>
