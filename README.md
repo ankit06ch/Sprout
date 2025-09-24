@@ -5,6 +5,8 @@ This project is building the **future of grocery intelligence** — a platform t
 
 Our mission is bold: **empower every grocery store — from local shops to global chains — with the tools they need to thrive in a data-driven era.**
 
+<img width="1512" height="824" alt="image" src="https://github.com/user-attachments/assets/bc5f4263-ea8a-4915-81d2-9d6125401e45" />
+
 ---
 
 ## 🚀 Why This Matters  
